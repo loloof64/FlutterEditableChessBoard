@@ -102,6 +102,12 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     });
   }
 
+  void _onTrashSelection() {
+    setState(() {
+      _editingPieceType = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     const commonWidth = 400.0;
@@ -122,6 +128,11 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
           width: commonWidth,
           onSelection: _onSelection,
         ),
+        TrashAndPreview(
+          width: commonWidth,
+          selectedPiece: _editingPieceType,
+          onTrashSelection: _onTrashSelection,
+        )
       ],
     );
   }
