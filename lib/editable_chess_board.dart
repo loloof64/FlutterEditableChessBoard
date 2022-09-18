@@ -1,5 +1,8 @@
 library editable_chess_board;
 
+import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
+import 'package:editable_chess_board/board_color.dart';
+import 'package:editable_chess_board/piece_type.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -8,15 +11,134 @@ import 'ui_square.dart';
 import 'piece.dart';
 
 /// Editable chess board widget.
-class EditableChessBoard extends StatelessWidget {
+class EditableChessBoard extends StatefulWidget {
   /// Board's position in Forsyth-Edwards Notation.
-  final String fen;
+  final String initialFen;
 
   /// Constructor.
   const EditableChessBoard({
     Key? key,
-    required this.fen,
+    required this.initialFen,
   }) : super(key: key);
+
+  @override
+  State<EditableChessBoard> createState() => _EditableChessBoardState();
+}
+
+class _EditableChessBoardState extends State<EditableChessBoard> {
+  late String _fen;
+  Piece? _editingPieceType;
+
+  @override
+  void initState() {
+    super.initState();
+    _fen = widget.initialFen;
+  }
+
+  void _onSquareClicked(int file, int rank) {
+    _updateFenPiece(file: file, rank: rank, pieceType: _editingPieceType);
+  }
+
+  void _updateFenPiece(
+      {required int file, required int rank, required Piece? pieceType}) {
+    var fenParts = _fen.split(' ');
+    final lines = fenParts[0].split('/');
+    var array = lines.map((currentLine) {
+      var arrayLine = <String>[];
+      final elements = currentLine.split('');
+      for (var currentElement in elements) {
+        if (currentElement.isNumeric) {
+          final holesCount = currentElement.codeUnitAt(0) - '0'.codeUnitAt(0);
+          for (int j = 0; j < holesCount; j++) {
+            arrayLine.add('');
+          }
+        } else {
+          arrayLine.add(currentElement);
+        }
+      }
+      return arrayLine;
+    }).toList();
+
+    final row = 7 - rank;
+    final col = file;
+    array[row][col] = pieceType != null
+        ? (pieceType.color == BoardColor.black
+            ? pieceType.type.toLowerCase()
+            : pieceType.type.toUpperCase())
+        : '';
+
+    final newFenBoardPart = array
+        .map((currentLine) {
+          var holes = 0;
+          var result = "";
+          for (var currentElement in currentLine) {
+            if (currentElement.isEmpty) {
+              holes++;
+            } else {
+              if (holes > 0) {
+                result += "$holes";
+              }
+              holes = 0;
+              result += currentElement;
+            }
+          }
+          if (holes > 0) {
+            result += "$holes";
+          }
+
+          return result;
+        })
+        .toList()
+        .join("/");
+
+    fenParts[0] = newFenBoardPart;
+    final newFen = fenParts.join(" ");
+
+    setState(() {
+      _fen = newFen;
+    });
+  }
+
+  void _onSelection({required Piece type}) {
+    setState(() {
+      _editingPieceType = type;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    const commonWidth = 400.0;
+    return Column(
+      children: [
+        SizedBox(
+          width: commonWidth,
+          child: ChessBoard(
+            fen: _fen,
+            onSquareClicked: _onSquareClicked,
+          ),
+        ),
+        _WhitePieces(
+          width: commonWidth,
+          onSelection: _onSelection,
+        ),
+        _BlackPieces(
+          width: commonWidth,
+          onSelection: _onSelection,
+        ),
+      ],
+    );
+  }
+}
+
+class ChessBoard extends StatelessWidget {
+  final String fen;
+  final void Function(int file, int rank) onSquareClicked;
+
+  const ChessBoard({
+    super.key,
+    required this.fen,
+    required this.onSquareClicked,
+  });
 
   Widget _buildPlayerTurn({required double size}) {
     final isWhiteTurn = fen.split(' ')[1] == 'w';
@@ -34,6 +156,7 @@ class EditableChessBoard extends StatelessWidget {
         final size = constraints.maxWidth < constraints.maxHeight
             ? constraints.maxWidth
             : constraints.maxHeight;
+        final boardSize = size * 0.9;
         return Stack(
           alignment: Alignment.center,
           children: [
@@ -65,11 +188,188 @@ class EditableChessBoard extends StatelessWidget {
             ),
             _Chessboard(
               fen: fen,
-              size: size * 0.9,
+              size: boardSize,
+              onSquareClicked: onSquareClicked,
             ),
           ],
         );
       }),
+    );
+  }
+}
+
+class _WhitePieces extends StatelessWidget {
+  final double width;
+  final void Function({required Piece type}) onSelection;
+
+  const _WhitePieces({required this.width, required this.onSelection});
+
+  @override
+  Widget build(BuildContext context) {
+    final commonSize = width * 0.1;
+    return Container(
+      decoration: const BoxDecoration(color: Colors.grey),
+      width: width,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          InkWell(
+            child: WhitePawn(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.white,
+                PieceType.pawn,
+              ),
+            ),
+          ),
+          InkWell(
+            child: WhiteKnight(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.white,
+                PieceType.knight,
+              ),
+            ),
+          ),
+          InkWell(
+            child: WhiteBishop(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.white,
+                PieceType.bishop,
+              ),
+            ),
+          ),
+          InkWell(
+            child: WhiteRook(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.white,
+                PieceType.rook,
+              ),
+            ),
+          ),
+          InkWell(
+            child: WhiteQueen(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.white,
+                PieceType.queen,
+              ),
+            ),
+          ),
+          InkWell(
+            child: WhiteKing(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.white,
+                PieceType.king,
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class _BlackPieces extends StatelessWidget {
+  final double width;
+  final void Function({required Piece type}) onSelection;
+
+  const _BlackPieces({required this.width, required this.onSelection});
+
+  @override
+  Widget build(BuildContext context) {
+    final commonSize = width * 0.1;
+    return Container(
+      decoration: const BoxDecoration(color: Colors.grey),
+      width: width,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          InkWell(
+            child: BlackPawn(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.black,
+                PieceType.pawn,
+              ),
+            ),
+          ),
+          InkWell(
+            child: BlackKnight(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.black,
+                PieceType.knight,
+              ),
+            ),
+          ),
+          InkWell(
+            child: BlackBishop(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.black,
+                PieceType.bishop,
+              ),
+            ),
+          ),
+          InkWell(
+            child: BlackRook(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.black,
+                PieceType.rook,
+              ),
+            ),
+          ),
+          InkWell(
+            child: BlackQueen(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.black,
+                PieceType.queen,
+              ),
+            ),
+          ),
+          InkWell(
+            child: BlackKing(
+              size: commonSize,
+            ),
+            onTap: () => onSelection(
+              type: const Piece(
+                BoardColor.black,
+                PieceType.king,
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -153,10 +453,12 @@ Iterable<Widget> getRanksCoordinates({
 
 class _Chessboard extends StatefulWidget {
   final Board board;
+  final void Function(int file, int rank) onSquareClicked;
 
   _Chessboard({
     required String fen,
     required double size,
+    required this.onSquareClicked,
     Color lightSquareColor = const Color.fromRGBO(240, 217, 181, 1),
     Color darkSquareColor = const Color.fromRGBO(181, 136, 99, 1),
     BuildPiece? buildPiece,
@@ -177,8 +479,6 @@ class _Chessboard extends StatefulWidget {
 }
 
 class _ChessboardState extends State<_Chessboard> {
-  Piece? _selectedPieceType;
-
   @override
   Widget build(BuildContext context) {
     return Provider.value(
@@ -193,11 +493,23 @@ class _ChessboardState extends State<_Chessboard> {
               ...widget.board.squares.map((it) {
                 return UISquare(
                   square: it,
-                  onSquareClicked: () {},
+                  onSquareClicked: () {
+                    final fileStr = it.file;
+                    final rankStr = it.rank;
+
+                    final file = fileStr.codeUnitAt(0) - 'a'.codeUnitAt(0);
+                    final rank = rankStr.codeUnitAt(0) - '1'.codeUnitAt(0);
+
+                    widget.onSquareClicked(file, rank);
+                  },
                 );
               }).toList(growable: false),
             ]),
       ),
     );
   }
+}
+
+extension Numeric on String {
+  bool get isNumeric => num.tryParse(this) != null ? true : false;
 }
