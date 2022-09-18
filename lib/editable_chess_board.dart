@@ -12,10 +12,14 @@ class EditableChessBoard extends StatefulWidget {
   /// Board's position in Forsyth-Edwards Notation.
   final String initialFen;
 
+  // Width of the board.
+  final double boardWidth;
+
   /// Constructor.
   const EditableChessBoard({
     Key? key,
     required this.initialFen,
+    required this.boardWidth,
   }) : super(key: key);
 
   @override
@@ -110,26 +114,25 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
   @override
   Widget build(BuildContext context) {
-    const commonWidth = 400.0;
     return Column(
       children: [
         SizedBox(
-          width: commonWidth,
+          width: widget.boardWidth,
           child: ChessBoard(
             fen: _fen,
             onSquareClicked: _onSquareClicked,
           ),
         ),
         WhitePieces(
-          width: commonWidth,
+          width: widget.boardWidth,
           onSelection: _onSelection,
         ),
         BlackPieces(
-          width: commonWidth,
+          width: widget.boardWidth,
           onSelection: _onSelection,
         ),
         TrashAndPreview(
-          width: commonWidth,
+          width: widget.boardWidth,
           selectedPiece: _editingPieceType,
           onTrashSelection: _onTrashSelection,
         )

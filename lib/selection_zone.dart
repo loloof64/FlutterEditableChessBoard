@@ -1,4 +1,3 @@
-import 'package:editable_chess_board/ui_piece.dart';
 import 'package:flutter/material.dart';
 
 import 'package:editable_chess_board/piece_type.dart';
