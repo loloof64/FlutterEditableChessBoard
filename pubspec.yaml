@@ -1,6 +1,6 @@
 name: editable_chess_board
 description: A new Flutter package project.
-version: 0.0.1
+version: 0.1.0
 homepage:
 
 environment:
@@ -10,6 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  fpdart: ^0.2.0
+  chess: ^0.7.0
+  provider: ^6.0.3
+  chess_vectors_flutter: ^1.0.18
 
 dev_dependencies:
   flutter_test:

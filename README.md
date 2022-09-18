@@ -9,6 +9,9 @@ With this widget, you can :
 * clear the board / set to the standard position
 * load the widget with a custom position and then reset to this initial position when needed
 * get the FEN value / set the board from a FEN value
+* select the component's layout : either portrait or landscape.
+
+The widget has defined locales : english, spanish and french. It will try to use the device language, or fallback to english.
 
 ## Getting started
 
