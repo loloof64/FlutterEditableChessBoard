@@ -124,43 +124,59 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          width: widget.boardSize,
-          child: ChessBoard(
-            fen: _fen,
-            onSquareClicked: _onSquareClicked,
-          ),
-        ),
-        WhitePieces(
-          width: widget.boardSize,
-          onSelection: _onSelection,
-        ),
-        BlackPieces(
-          width: widget.boardSize,
-          onSelection: _onSelection,
-        ),
-        TrashAndPreview(
-          width: widget.boardSize,
-          selectedPiece: _editingPieceType,
-          onTrashSelection: _onTrashSelection,
-        ),
-        Flexible(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                TurnWidgets(
-                  width: widget.boardSize,
-                  onTurnChanged: _onTurnChanged,
-                ),
-              ],
+    final content = <Widget>[
+      Column(
+        children: [
+          SizedBox(
+            width: widget.boardSize,
+            child: ChessBoard(
+              fen: _fen,
+              onSquareClicked: _onSquareClicked,
             ),
           ),
-        )
-      ],
-    );
+          WhitePieces(
+            width: widget.boardSize,
+            onSelection: _onSelection,
+          ),
+          BlackPieces(
+            width: widget.boardSize,
+            onSelection: _onSelection,
+          ),
+          TrashAndPreview(
+            width: widget.boardSize,
+            selectedPiece: _editingPieceType,
+            onTrashSelection: _onTrashSelection,
+          ),
+        ],
+      ),
+      Flexible(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              TurnWidgets(
+                width: widget.boardSize,
+                onTurnChanged: _onTurnChanged,
+              ),
+            ],
+          ),
+        ),
+      )
+    ];
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints viewportConstraints) {
+      final isPortrait =
+          viewportConstraints.maxHeight > viewportConstraints.maxWidth;
+      if (isPortrait) {
+        return Column(
+          children: content,
+        );
+      } else {
+        return Row(
+          children: content,
+        );
+      }
+    });
   }
 }
 
