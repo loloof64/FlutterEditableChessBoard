@@ -149,18 +149,8 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
           ),
         ],
       ),
-      Flexible(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              TurnWidgets(
-                width: widget.boardSize,
-                onTurnChanged: _onTurnChanged,
-              ),
-            ],
-          ),
-        ),
+      AdvancedOptions(
+        onTurnChanged: _onTurnChanged,
       )
     ];
     return LayoutBuilder(
@@ -181,12 +171,10 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 }
 
 class TurnWidgets extends StatefulWidget {
-  final double width;
   final void Function(bool turn) onTurnChanged;
 
   const TurnWidgets({
     Key? key,
-    required this.width,
     required this.onTurnChanged,
   }) : super(key: key);
 
@@ -199,46 +187,69 @@ class _TurnWidgetsState extends State<TurnWidgets> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Player turn',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Player turn',
+        ),
+        ListTile(
+          title: const Text('White'),
+          leading: Radio<bool>(
+            groupValue: _isWhiteTurn,
+            value: true,
+            onChanged: (value) {
+              setState(() {
+                _isWhiteTurn = value ?? true;
+                widget.onTurnChanged(_isWhiteTurn);
+              });
+            },
           ),
-          ListTile(
-            title: const Text('White'),
-            leading: Radio<bool>(
-              groupValue: _isWhiteTurn,
-              value: true,
-              onChanged: (value) {
-                setState(() {
-                  _isWhiteTurn = value ?? true;
-                  widget.onTurnChanged(_isWhiteTurn);
-                });
-              },
-            ),
+        ),
+        ListTile(
+          title: const Text('Black'),
+          leading: Radio<bool>(
+            groupValue: _isWhiteTurn,
+            value: false,
+            onChanged: (value) {
+              setState(() {
+                _isWhiteTurn = value ?? false;
+                widget.onTurnChanged(_isWhiteTurn);
+              });
+            },
           ),
-          ListTile(
-            title: const Text('Black'),
-            leading: Radio<bool>(
-              groupValue: _isWhiteTurn,
-              value: false,
-              onChanged: (value) {
-                setState(() {
-                  _isWhiteTurn = value ?? false;
-                  widget.onTurnChanged(_isWhiteTurn);
-                });
-              },
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 extension Numeric on String {
   bool get isNumeric => num.tryParse(this) != null ? true : false;
+}
+
+class AdvancedOptions extends StatefulWidget {
+  final void Function(bool value) onTurnChanged;
+  const AdvancedOptions({super.key, required this.onTurnChanged});
+
+  @override
+  State<AdvancedOptions> createState() => _AdvancedOptionsState();
+}
+
+class _AdvancedOptionsState extends State<AdvancedOptions> {
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TurnWidgets(
+              onTurnChanged: widget.onTurnChanged,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
