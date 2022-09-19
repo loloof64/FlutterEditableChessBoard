@@ -135,15 +135,15 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
             ),
           ),
           WhitePieces(
-            width: widget.boardSize,
+            maxWidth: widget.boardSize,
             onSelection: _onSelection,
           ),
           BlackPieces(
-            width: widget.boardSize,
+            maxWidth: widget.boardSize,
             onSelection: _onSelection,
           ),
           TrashAndPreview(
-            width: widget.boardSize,
+            maxWidth: widget.boardSize,
             selectedPiece: _editingPieceType,
             onTrashSelection: _onTrashSelection,
           ),
