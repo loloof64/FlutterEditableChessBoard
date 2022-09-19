@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'rich_chess_board.dart';
 import 'selection_zone.dart';
 import 'piece.dart';
+import 'advanced_options.dart';
 
 /// Editable chess board widget.
 class EditableChessBoard extends StatefulWidget {
@@ -29,6 +30,11 @@ class EditableChessBoard extends StatefulWidget {
 class _EditableChessBoardState extends State<EditableChessBoard> {
   late String _fen;
   Piece? _editingPieceType;
+
+  bool _whiteOO = true;
+  bool _whiteOOO = true;
+  bool _blackOO = true;
+  bool _blackOOO = true;
 
   @override
   void initState() {
@@ -122,6 +128,60 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     });
   }
 
+  void _updateCastlesInFen() {
+    var parts = _fen.split(' ');
+    var newCastlesStr = '';
+
+    if (_whiteOO) newCastlesStr += 'K';
+    if (_whiteOOO) newCastlesStr += 'Q';
+    if (_blackOO) newCastlesStr += 'k';
+    if (_blackOOO) newCastlesStr += 'q';
+
+    if (newCastlesStr.isEmpty) newCastlesStr = '-';
+
+    parts[2] = newCastlesStr;
+
+    setState(() {
+      _fen = parts.join(' ');
+    });
+  }
+
+  void _onWhiteOOChanged(bool? value) {
+    if (value != null) {
+      setState(() {
+        _whiteOO = value;
+        _updateCastlesInFen();
+      });
+    }
+  }
+
+  void _onWhiteOOOChanged(bool? value) {
+    if (value != null) {
+      setState(() {
+        _whiteOOO = value;
+        _updateCastlesInFen();
+      });
+    }
+  }
+
+  void _onBlackOOChanged(bool? value) {
+    if (value != null) {
+      setState(() {
+        _blackOO = value;
+        _updateCastlesInFen();
+      });
+    }
+  }
+
+  void _onBlackOOOChanged(bool? value) {
+    if (value != null) {
+      setState(() {
+        _blackOOO = value;
+        _updateCastlesInFen();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = <Widget>[
@@ -150,7 +210,15 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
+        whiteOO: _whiteOO,
+        whiteOOO: _whiteOOO,
+        blackOO: _blackOO,
+        blackOOO: _blackOOO,
         onTurnChanged: _onTurnChanged,
+        onWhiteOOChanged: _onWhiteOOChanged,
+        onWhiteOOOChanged: _onWhiteOOOChanged,
+        onBlackOOChanged: _onBlackOOChanged,
+        onBlackOOOChanged: _onBlackOOOChanged,
       )
     ];
     return LayoutBuilder(
@@ -170,86 +238,6 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   }
 }
 
-class TurnWidgets extends StatefulWidget {
-  final void Function(bool turn) onTurnChanged;
-
-  const TurnWidgets({
-    Key? key,
-    required this.onTurnChanged,
-  }) : super(key: key);
-
-  @override
-  State<TurnWidgets> createState() => _TurnWidgetsState();
-}
-
-class _TurnWidgetsState extends State<TurnWidgets> {
-  bool _isWhiteTurn = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Player turn',
-        ),
-        ListTile(
-          title: const Text('White'),
-          leading: Radio<bool>(
-            groupValue: _isWhiteTurn,
-            value: true,
-            onChanged: (value) {
-              setState(() {
-                _isWhiteTurn = value ?? true;
-                widget.onTurnChanged(_isWhiteTurn);
-              });
-            },
-          ),
-        ),
-        ListTile(
-          title: const Text('Black'),
-          leading: Radio<bool>(
-            groupValue: _isWhiteTurn,
-            value: false,
-            onChanged: (value) {
-              setState(() {
-                _isWhiteTurn = value ?? false;
-                widget.onTurnChanged(_isWhiteTurn);
-              });
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 extension Numeric on String {
   bool get isNumeric => num.tryParse(this) != null ? true : false;
-}
-
-class AdvancedOptions extends StatefulWidget {
-  final void Function(bool value) onTurnChanged;
-  const AdvancedOptions({super.key, required this.onTurnChanged});
-
-  @override
-  State<AdvancedOptions> createState() => _AdvancedOptionsState();
-}
-
-class _AdvancedOptionsState extends State<AdvancedOptions> {
-  @override
-  Widget build(BuildContext context) {
-    return Flexible(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TurnWidgets(
-              onTurnChanged: widget.onTurnChanged,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
