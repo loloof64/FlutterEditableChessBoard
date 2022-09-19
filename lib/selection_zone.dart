@@ -197,7 +197,7 @@ class TrashAndPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final commonSize = width * 0.2;
+    final commonSize = width * 0.1;
     return Container(
       color: Colors.grey,
       width: width,
@@ -210,7 +210,7 @@ class TrashAndPreview extends StatelessWidget {
             height: commonSize,
             decoration: BoxDecoration(
               border: Border.all(
-                width: 5,
+                width: 2,
                 color: Colors.black,
               ),
             ),

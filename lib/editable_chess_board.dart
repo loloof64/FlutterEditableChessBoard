@@ -12,14 +12,14 @@ class EditableChessBoard extends StatefulWidget {
   /// Board's position in Forsyth-Edwards Notation.
   final String initialFen;
 
-  // Width of the board.
-  final double boardWidth;
+  // Size of the board.
+  final double boardSize;
 
   /// Constructor.
   const EditableChessBoard({
     Key? key,
     required this.initialFen,
-    required this.boardWidth,
+    required this.boardSize,
   }) : super(key: key);
 
   @override
@@ -112,31 +112,113 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     });
   }
 
+  void _onTurnChanged(bool turn) {
+    var parts = _fen.split(' ');
+    final newTurnStr = turn ? 'w' : 'b';
+    parts[1] = newTurnStr;
+
+    setState(() {
+      _fen = parts.join(' ');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         SizedBox(
-          width: widget.boardWidth,
+          width: widget.boardSize,
           child: ChessBoard(
             fen: _fen,
             onSquareClicked: _onSquareClicked,
           ),
         ),
         WhitePieces(
-          width: widget.boardWidth,
+          width: widget.boardSize,
           onSelection: _onSelection,
         ),
         BlackPieces(
-          width: widget.boardWidth,
+          width: widget.boardSize,
           onSelection: _onSelection,
         ),
         TrashAndPreview(
-          width: widget.boardWidth,
+          width: widget.boardSize,
           selectedPiece: _editingPieceType,
           onTrashSelection: _onTrashSelection,
+        ),
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                TurnWidgets(
+                  width: widget.boardSize,
+                  onTurnChanged: _onTurnChanged,
+                ),
+              ],
+            ),
+          ),
         )
       ],
+    );
+  }
+}
+
+class TurnWidgets extends StatefulWidget {
+  final double width;
+  final void Function(bool turn) onTurnChanged;
+
+  const TurnWidgets({
+    Key? key,
+    required this.width,
+    required this.onTurnChanged,
+  }) : super(key: key);
+
+  @override
+  State<TurnWidgets> createState() => _TurnWidgetsState();
+}
+
+class _TurnWidgetsState extends State<TurnWidgets> {
+  bool _isWhiteTurn = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Player turn',
+          ),
+          ListTile(
+            title: const Text('White'),
+            leading: Radio<bool>(
+              groupValue: _isWhiteTurn,
+              value: true,
+              onChanged: (value) {
+                setState(() {
+                  _isWhiteTurn = value ?? true;
+                  widget.onTurnChanged(_isWhiteTurn);
+                });
+              },
+            ),
+          ),
+          ListTile(
+            title: const Text('Black'),
+            leading: Radio<bool>(
+              groupValue: _isWhiteTurn,
+              value: false,
+              onChanged: (value) {
+                setState(() {
+                  _isWhiteTurn = value ?? false;
+                  widget.onTurnChanged(_isWhiteTurn);
+                });
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
