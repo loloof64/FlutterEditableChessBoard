@@ -277,7 +277,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   void _onHalfMoveCountSubmitted(String value) {
     var parts = _fen.split(' ');
     final newCount = int.tryParse(value);
-    if (newCount != null) {
+    if (newCount != null && newCount >= 0) {
       parts[4] = value;
     }
 
