@@ -1,12 +1,14 @@
 library editable_chess_board;
 
-import 'package:editable_chess_board/board_color.dart';
 import 'package:flutter/material.dart';
+import 'package:super_string/super_string.dart';
 
+import 'board_color.dart';
 import 'rich_chess_board.dart';
 import 'selection_zone.dart';
 import 'piece.dart';
 import 'advanced_options.dart';
+import 'utils.dart';
 
 /// Texts used for the labels.
 class Labels {
@@ -135,32 +137,14 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   void _updateFenPiece(
       {required int file, required int rank, required Piece? pieceType}) {
     var fenParts = _fen.split(' ');
-    final lines = fenParts[0].split('/');
-    var array = lines.map((currentLine) {
-      var arrayLine = <String>[];
-      final elements = currentLine.split('');
-      for (var currentElement in elements) {
-        if (currentElement.isNumeric) {
-          final holesCount = currentElement.codeUnitAt(0) - '0'.codeUnitAt(0);
-          for (int j = 0; j < holesCount; j++) {
-            arrayLine.add('');
-          }
-        } else {
-          arrayLine.add(currentElement);
-        }
-      }
-      return arrayLine;
-    }).toList();
-
-    final row = 7 - rank;
-    final col = file;
-    array[row][col] = pieceType != null
+    var piecesArray = getPiecesArray(_fen);
+    piecesArray[rank][file] = pieceType != null
         ? (pieceType.color == BoardColor.black
             ? pieceType.type.toLowerCase()
             : pieceType.type.toUpperCase())
         : '';
 
-    final newFenBoardPart = array
+    final newFenBoardPart = piecesArray
         .map((currentLine) {
           var holes = 0;
           var result = "";
@@ -208,6 +192,47 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     var parts = _fen.split(' ');
     final newTurnStr = turn ? 'w' : 'b';
     parts[1] = newTurnStr;
+
+    // Also update en passant square
+    final piecesArray = getPiecesArray(_fen);
+    final rank = turn ? 4 : 3;
+    final currentEpSquareValue = parts[3];
+    final expectedPawn = turn ? 'p' : 'P';
+    //////////////////////
+    print(currentEpSquareValue);
+    //////////////////////
+    if (currentEpSquareValue != '-') {
+      String pieceAtEpSquare;
+      final currentEpFileStr = currentEpSquareValue.charAt(0);
+      if (currentEpFileStr == widget.labels.fileALabel) {
+        pieceAtEpSquare = piecesArray[rank][0];
+      } else if (currentEpFileStr == widget.labels.fileBLabel) {
+        pieceAtEpSquare = piecesArray[rank][1];
+      } else if (currentEpFileStr == widget.labels.fileCLabel) {
+        pieceAtEpSquare = piecesArray[rank][2];
+      } else if (currentEpFileStr == widget.labels.fileDLabel) {
+        pieceAtEpSquare = piecesArray[rank][3];
+      } else if (currentEpFileStr == widget.labels.fileELabel) {
+        pieceAtEpSquare = piecesArray[rank][4];
+      } else if (currentEpFileStr == widget.labels.fileFLabel) {
+        pieceAtEpSquare = piecesArray[rank][5];
+      } else if (currentEpFileStr == widget.labels.fileGLabel) {
+        pieceAtEpSquare = piecesArray[rank][6];
+      } else if (currentEpFileStr == widget.labels.fileHLabel) {
+        pieceAtEpSquare = piecesArray[rank][7];
+      } else {
+        pieceAtEpSquare = '';
+      }
+
+      if (pieceAtEpSquare == expectedPawn) {
+        String currentEpRankStr = currentEpSquareValue.charAt(1);
+        int currentEpRank = int.parse(currentEpRankStr);
+        int newEpRank = 9 - currentEpRank;
+        parts[3] = "$currentEpFileStr$newEpRank";
+      } else {
+        parts[3] = '-';
+      }
+    }
 
     setState(() {
       _fen = parts.join(' ');
@@ -270,9 +295,20 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
   void _onEnPassantChanged(String? value) {
     if (value != null) {
+      var parts = _fen.split(' ');
+      if (value == '-') {
+        parts[3] = value;
+      } else {
+        final whiteTurn = parts[1] == 'w';
+        final rankStr = whiteTurn ? '6' : '3';
+        parts[3] = "$value$rankStr";
+      }
       setState(() {
-        //TODO
+        _fen = parts.join(' ');
       });
+      ////////////////////////////
+      print(_fen);
+      ////////////////////////////
     }
   }
 
@@ -333,8 +369,4 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
       }
     });
   }
-}
-
-extension Numeric on String {
-  bool get isNumeric => num.tryParse(this) != null ? true : false;
 }

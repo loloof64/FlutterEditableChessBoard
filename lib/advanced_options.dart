@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'editable_chess_board.dart';
+import 'utils.dart';
 
 class AdvancedOptions extends StatelessWidget {
   final String currentFen;
@@ -233,28 +234,7 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
     final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
     final rank = whiteTurn ? 4 : 3;
     final expectedPawnValue = whiteTurn ? 'p' : 'P';
-    final fenParts = widget.currentFen.split(' ');
-    final lines = fenParts[0].split('/');
-    final piecesArray = lines
-        .map((currentLine) {
-          var arrayLine = <String>[];
-          final elements = currentLine.split('');
-          for (var currentElement in elements) {
-            if (currentElement.isNumeric) {
-              final holesCount =
-                  currentElement.codeUnitAt(0) - '0'.codeUnitAt(0);
-              for (int j = 0; j < holesCount; j++) {
-                arrayLine.add('');
-              }
-            } else {
-              arrayLine.add(currentElement);
-            }
-          }
-          return arrayLine;
-        })
-        .toList()
-        .reversed
-        .toList();
+    final piecesArray = getPiecesArray(widget.currentFen);
 
     if (value == items.first) return true;
     if (value == widget.labels.fileALabel) {
@@ -286,6 +266,10 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
 
   @override
   Widget build(BuildContext context) {
+    ///////////////////////////
+    print(widget.currentFen);
+    ///////////////////////////
+
     final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
 
     if (!_checkCorrectDropdown(dropdownValue)) {
