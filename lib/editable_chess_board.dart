@@ -52,6 +52,9 @@ class Labels {
   /// Text used for the current position label.
   final String currentPositionLabel;
 
+  /// Text used for the copy position (into clipboard) label.
+  final String copyFenLabel;
+
   Labels({
     required this.playerTurnLabel,
     required this.whitePlayerLabel,
@@ -66,6 +69,7 @@ class Labels {
     required this.moveNumberLabel,
     required this.submitFieldLabel,
     required this.currentPositionLabel,
+    required this.copyFenLabel,
   });
 }
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:super_string/super_string.dart';
 import 'editable_chess_board.dart';
 import 'utils.dart';
@@ -457,6 +458,15 @@ class FenControlsWidget extends StatelessWidget {
           onPressed: () => onPositionFenSubmitted(_positionFenController.text),
           child: Text(labels.submitFieldLabel),
         ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: () {
+              FlutterClipboard.copy(currentFen);
+            },
+            child: Text(labels.copyFenLabel),
+          ),
+        )
       ],
     );
   }
