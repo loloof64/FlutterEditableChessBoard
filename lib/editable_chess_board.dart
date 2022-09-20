@@ -278,9 +278,6 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
   @override
   Widget build(BuildContext context) {
-    final fenParts = _fen.split(' ');
-    final whiteTurn = fenParts[1] == 'w';
-
     final content = <Widget>[
       Column(
         children: [
@@ -307,7 +304,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
-        whiteTurn: whiteTurn,
+        currentFen: _fen,
         labels: widget.labels,
         whiteOO: _whiteOO,
         whiteOOO: _whiteOOO,

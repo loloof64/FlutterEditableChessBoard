@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'editable_chess_board.dart';
 
 class AdvancedOptions extends StatelessWidget {
-  final bool whiteTurn;
+  final String currentFen;
   final Labels labels;
   final bool whiteOO;
   final bool whiteOOO;
@@ -18,7 +18,7 @@ class AdvancedOptions extends StatelessWidget {
 
   const AdvancedOptions({
     super.key,
-    required this.whiteTurn,
+    required this.currentFen,
     required this.labels,
     required this.whiteOO,
     required this.whiteOOO,
@@ -61,7 +61,7 @@ class AdvancedOptions extends StatelessWidget {
               color: Colors.black,
             ),
             EnPassantWidget(
-              whiteTurn: whiteTurn,
+              currentFen: currentFen,
               labels: labels,
               onChanged: onEnPassantChanged,
             ),
@@ -193,13 +193,13 @@ class CastlesWidget extends StatelessWidget {
 }
 
 class EnPassantWidget extends StatefulWidget {
-  final bool whiteTurn;
+  final String currentFen;
   final Labels labels;
   final void Function(String?) onChanged;
 
   const EnPassantWidget({
     super.key,
-    required this.whiteTurn,
+    required this.currentFen,
     required this.labels,
     required this.onChanged,
   });
@@ -229,8 +229,68 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
     super.initState();
   }
 
+  bool _checkCorrectDropdown(String value) {
+    final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
+    final rank = whiteTurn ? 4 : 3;
+    final expectedPawnValue = whiteTurn ? 'p' : 'P';
+    final fenParts = widget.currentFen.split(' ');
+    final lines = fenParts[0].split('/');
+    final piecesArray = lines
+        .map((currentLine) {
+          var arrayLine = <String>[];
+          final elements = currentLine.split('');
+          for (var currentElement in elements) {
+            if (currentElement.isNumeric) {
+              final holesCount =
+                  currentElement.codeUnitAt(0) - '0'.codeUnitAt(0);
+              for (int j = 0; j < holesCount; j++) {
+                arrayLine.add('');
+              }
+            } else {
+              arrayLine.add(currentElement);
+            }
+          }
+          return arrayLine;
+        })
+        .toList()
+        .reversed
+        .toList();
+
+    ///////////////////////////
+    print(piecesArray[rank]);
+    ///////////////////////////
+
+    if (value == items.first) return true;
+    if (value == widget.labels.fileALabel) {
+      return piecesArray[rank][0] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileBLabel) {
+      return piecesArray[rank][1] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileCLabel) {
+      return piecesArray[rank][2] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileDLabel) {
+      return piecesArray[rank][3] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileELabel) {
+      return piecesArray[rank][4] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileFLabel) {
+      return piecesArray[rank][5] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileGLabel) {
+      return piecesArray[rank][6] == expectedPawnValue;
+    }
+    if (value == widget.labels.fileHLabel) {
+      return piecesArray[rank][7] == expectedPawnValue;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -248,18 +308,19 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
               )
               .toList(),
           onChanged: (value) {
-            setState(() {
-              if (value != null) {
-                dropdownValue = value;
+            if (value != null) {
+              final isCorrectDropdown = _checkCorrectDropdown(value);
+              if (isCorrectDropdown) {
+                setState(() {
+                  dropdownValue = value;
+                  widget.onChanged(value);
+                });
               }
-            });
-            widget.onChanged(value);
+            }
           },
         ),
         Text(dropdownValue != items.first
-            ? (widget.whiteTurn
-                ? widget.labels.rank6Label
-                : widget.labels.rank3Label)
+            ? (whiteTurn ? widget.labels.rank6Label : widget.labels.rank3Label)
             : ''),
       ],
     );
