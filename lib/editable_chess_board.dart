@@ -268,8 +268,19 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     }
   }
 
+  void _onEnPassantChanged(String? value) {
+    if (value != null) {
+      setState(() {
+        //TODO
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final fenParts = _fen.split(' ');
+    final whiteTurn = fenParts[1] == 'w';
+
     final content = <Widget>[
       Column(
         children: [
@@ -296,6 +307,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
+        whiteTurn: whiteTurn,
         labels: widget.labels,
         whiteOO: _whiteOO,
         whiteOOO: _whiteOOO,
@@ -306,6 +318,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         onWhiteOOOChanged: _onWhiteOOOChanged,
         onBlackOOChanged: _onBlackOOChanged,
         onBlackOOOChanged: _onBlackOOOChanged,
+        onEnPassantChanged: _onEnPassantChanged,
       )
     ];
     return LayoutBuilder(

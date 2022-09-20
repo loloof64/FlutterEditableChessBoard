@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'editable_chess_board.dart';
 
 class AdvancedOptions extends StatelessWidget {
+  final bool whiteTurn;
   final Labels labels;
   final bool whiteOO;
   final bool whiteOOO;
@@ -13,9 +14,11 @@ class AdvancedOptions extends StatelessWidget {
   final void Function(bool?) onWhiteOOOChanged;
   final void Function(bool?) onBlackOOChanged;
   final void Function(bool?) onBlackOOOChanged;
+  final void Function(String?) onEnPassantChanged;
 
   const AdvancedOptions({
     super.key,
+    required this.whiteTurn,
     required this.labels,
     required this.whiteOO,
     required this.whiteOOO,
@@ -26,6 +29,7 @@ class AdvancedOptions extends StatelessWidget {
     required this.onWhiteOOOChanged,
     required this.onBlackOOChanged,
     required this.onBlackOOOChanged,
+    required this.onEnPassantChanged,
   });
 
   @override
@@ -52,7 +56,15 @@ class AdvancedOptions extends StatelessWidget {
               onWhiteOOOChanged: onWhiteOOOChanged,
               onBlackOOChanged: onBlackOOChanged,
               onBlackOOOChanged: onBlackOOOChanged,
-            )
+            ),
+            const Divider(
+              color: Colors.black,
+            ),
+            EnPassantWidget(
+              whiteTurn: whiteTurn,
+              labels: labels,
+              onChanged: onEnPassantChanged,
+            ),
           ],
         ),
       ),
@@ -175,6 +187,80 @@ class CastlesWidget extends StatelessWidget {
             Checkbox(value: blackOOO, onChanged: onBlackOOOChanged),
           ],
         ),
+      ],
+    );
+  }
+}
+
+class EnPassantWidget extends StatefulWidget {
+  final bool whiteTurn;
+  final Labels labels;
+  final void Function(String?) onChanged;
+
+  const EnPassantWidget({
+    super.key,
+    required this.whiteTurn,
+    required this.labels,
+    required this.onChanged,
+  });
+
+  @override
+  State<EnPassantWidget> createState() => _EnPassantWidgetState();
+}
+
+class _EnPassantWidgetState extends State<EnPassantWidget> {
+  late List<String> items;
+  late String dropdownValue;
+
+  @override
+  void initState() {
+    items = <String>[
+      '-',
+      widget.labels.fileALabel,
+      widget.labels.fileBLabel,
+      widget.labels.fileCLabel,
+      widget.labels.fileDLabel,
+      widget.labels.fileELabel,
+      widget.labels.fileFLabel,
+      widget.labels.fileGLabel,
+      widget.labels.fileHLabel,
+    ];
+    dropdownValue = items.first;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
+      children: [
+        Text(widget.labels.enPassantLabel),
+        DropdownButton<String>(
+          value: dropdownValue,
+          items: items
+              .map(
+                (currentItem) => DropdownMenuItem<String>(
+                  value: currentItem,
+                  child: Text(currentItem),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            setState(() {
+              if (value != null) {
+                dropdownValue = value;
+              }
+            });
+            widget.onChanged(value);
+          },
+        ),
+        Text(dropdownValue != items.first
+            ? (widget.whiteTurn
+                ? widget.labels.rank6Label
+                : widget.labels.rank3Label)
+            : ''),
       ],
     );
   }
