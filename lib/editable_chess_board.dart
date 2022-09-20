@@ -39,36 +39,6 @@ class Labels {
   /// Text used for en passant square label.
   final String enPassantLabel;
 
-  /// Text used for file A label.
-  final String fileALabel;
-
-  /// Text used for file B label.
-  final String fileBLabel;
-
-  /// Text used for file C label.
-  final String fileCLabel;
-
-  /// Text used for file D label.
-  final String fileDLabel;
-
-  /// Text used for file E label.
-  final String fileELabel;
-
-  /// Text used for file F label.
-  final String fileFLabel;
-
-  /// Text used for file G label.
-  final String fileGLabel;
-
-  /// Text used for file H label.
-  final String fileHLabel;
-
-  /// Text used for rank 3 label.
-  final String rank3Label;
-
-  /// Text used for rank 6 label.
-  final String rank6Label;
-
   Labels({
     required this.playerTurnLabel,
     required this.whitePlayerLabel,
@@ -79,16 +49,6 @@ class Labels {
     required this.blackOOLabel,
     required this.blackOOOLabel,
     required this.enPassantLabel,
-    required this.fileALabel,
-    required this.fileBLabel,
-    required this.fileCLabel,
-    required this.fileDLabel,
-    required this.fileELabel,
-    required this.fileFLabel,
-    required this.fileGLabel,
-    required this.fileHLabel,
-    required this.rank3Label,
-    required this.rank6Label,
   });
 }
 
@@ -201,21 +161,21 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     if (currentEpSquareValue != '-') {
       String pieceAtEpSquare;
       final currentEpFileStr = currentEpSquareValue.charAt(0);
-      if (currentEpFileStr == widget.labels.fileALabel) {
+      if (currentEpFileStr == 'a') {
         pieceAtEpSquare = piecesArray[rank][0];
-      } else if (currentEpFileStr == widget.labels.fileBLabel) {
+      } else if (currentEpFileStr == 'b') {
         pieceAtEpSquare = piecesArray[rank][1];
-      } else if (currentEpFileStr == widget.labels.fileCLabel) {
+      } else if (currentEpFileStr == 'c') {
         pieceAtEpSquare = piecesArray[rank][2];
-      } else if (currentEpFileStr == widget.labels.fileDLabel) {
+      } else if (currentEpFileStr == 'd') {
         pieceAtEpSquare = piecesArray[rank][3];
-      } else if (currentEpFileStr == widget.labels.fileELabel) {
+      } else if (currentEpFileStr == 'e') {
         pieceAtEpSquare = piecesArray[rank][4];
-      } else if (currentEpFileStr == widget.labels.fileFLabel) {
+      } else if (currentEpFileStr == 'f') {
         pieceAtEpSquare = piecesArray[rank][5];
-      } else if (currentEpFileStr == widget.labels.fileGLabel) {
+      } else if (currentEpFileStr == 'g') {
         pieceAtEpSquare = piecesArray[rank][6];
-      } else if (currentEpFileStr == widget.labels.fileHLabel) {
+      } else if (currentEpFileStr == 'h') {
         pieceAtEpSquare = piecesArray[rank][7];
       } else {
         pieceAtEpSquare = '';
@@ -336,10 +296,6 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
       AdvancedOptions(
         currentFen: _fen,
         labels: widget.labels,
-        whiteOO: _whiteOO,
-        whiteOOO: _whiteOOO,
-        blackOO: _blackOO,
-        blackOOO: _blackOOO,
         onTurnChanged: _onTurnChanged,
         onWhiteOOChanged: _onWhiteOOChanged,
         onWhiteOOOChanged: _onWhiteOOOChanged,

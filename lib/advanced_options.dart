@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:super_string/super_string.dart';
 import 'editable_chess_board.dart';
 import 'utils.dart';
 
 class AdvancedOptions extends StatelessWidget {
   final String currentFen;
   final Labels labels;
-  final bool whiteOO;
-  final bool whiteOOO;
-  final bool blackOO;
-  final bool blackOOO;
 
   final void Function(bool value) onTurnChanged;
   final void Function(bool?) onWhiteOOChanged;
@@ -21,10 +18,6 @@ class AdvancedOptions extends StatelessWidget {
     super.key,
     required this.currentFen,
     required this.labels,
-    required this.whiteOO,
-    required this.whiteOOO,
-    required this.blackOO,
-    required this.blackOOO,
     required this.onTurnChanged,
     required this.onWhiteOOChanged,
     required this.onWhiteOOOChanged,
@@ -38,6 +31,14 @@ class AdvancedOptions extends StatelessWidget {
     ////////////////////////
     print(currentFen);
     ////////////////////////
+
+    final fenParts = currentFen.split(' ');
+    final castlesPart = fenParts[2];
+    final whiteOO = castlesPart.contains('K');
+    final whiteOOO = castlesPart.contains('Q');
+    final blackOO = castlesPart.contains('k');
+    final blackOOO = castlesPart.contains('q');
+
     return Flexible(
       child: SingleChildScrollView(
         child: Column(
@@ -220,16 +221,44 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
   void initState() {
     items = <String>[
       '-',
-      widget.labels.fileALabel,
-      widget.labels.fileBLabel,
-      widget.labels.fileCLabel,
-      widget.labels.fileDLabel,
-      widget.labels.fileELabel,
-      widget.labels.fileFLabel,
-      widget.labels.fileGLabel,
-      widget.labels.fileHLabel,
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+      'f',
+      'g',
+      'h',
     ];
-    dropdownValue = items.first;
+
+    final fenParts = widget.currentFen.split(' ');
+    final currentEpValue = fenParts[3];
+
+    String epValue;
+
+    if (currentEpValue == '-') {
+      epValue = '-';
+    } else if (currentEpValue.charAt(0) == 'a') {
+      epValue = 'a';
+    } else if (currentEpValue.charAt(0) == 'b') {
+      epValue = 'b';
+    } else if (currentEpValue.charAt(0) == 'c') {
+      epValue = 'c';
+    } else if (currentEpValue.charAt(0) == 'd') {
+      epValue = 'd';
+    } else if (currentEpValue.charAt(0) == 'e') {
+      epValue = 'e';
+    } else if (currentEpValue.charAt(0) == 'f') {
+      epValue = 'f';
+    } else if (currentEpValue.charAt(0) == 'g') {
+      epValue = 'g';
+    } else if (currentEpValue.charAt(0) == 'h') {
+      epValue = 'h';
+    } else {
+      epValue = '-';
+    }
+
+    dropdownValue = epValue;
     super.initState();
   }
 
@@ -240,28 +269,28 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
     final piecesArray = getPiecesArray(widget.currentFen);
 
     if (value == items.first) return true;
-    if (value == widget.labels.fileALabel) {
+    if (value == 'a') {
       return piecesArray[rank][0] == expectedPawnValue;
     }
-    if (value == widget.labels.fileBLabel) {
+    if (value == 'b') {
       return piecesArray[rank][1] == expectedPawnValue;
     }
-    if (value == widget.labels.fileCLabel) {
+    if (value == 'c') {
       return piecesArray[rank][2] == expectedPawnValue;
     }
-    if (value == widget.labels.fileDLabel) {
+    if (value == 'd') {
       return piecesArray[rank][3] == expectedPawnValue;
     }
-    if (value == widget.labels.fileELabel) {
+    if (value == 'e') {
       return piecesArray[rank][4] == expectedPawnValue;
     }
-    if (value == widget.labels.fileFLabel) {
+    if (value == 'f') {
       return piecesArray[rank][5] == expectedPawnValue;
     }
-    if (value == widget.labels.fileGLabel) {
+    if (value == 'g') {
       return piecesArray[rank][6] == expectedPawnValue;
     }
-    if (value == widget.labels.fileHLabel) {
+    if (value == 'h') {
       return piecesArray[rank][7] == expectedPawnValue;
     }
     return false;
@@ -305,9 +334,7 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
             }
           },
         ),
-        Text(dropdownValue != items.first
-            ? (whiteTurn ? widget.labels.rank6Label : widget.labels.rank3Label)
-            : ''),
+        Text(dropdownValue != items.first ? (whiteTurn ? '6' : '3') : ''),
       ],
     );
   }
