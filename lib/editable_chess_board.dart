@@ -42,6 +42,9 @@ class Labels {
   /// Text used for the draw half moves count.
   final String drawHalfMovesCountLabel;
 
+  /// Text used for the draw half moves count.
+  final String moveNumberLabel;
+
   /// Text used for the submit field value buttons.
   final String submitFieldLabel;
 
@@ -56,6 +59,7 @@ class Labels {
     required this.blackOOOLabel,
     required this.enPassantLabel,
     required this.drawHalfMovesCountLabel,
+    required this.moveNumberLabel,
     required this.submitFieldLabel,
   });
 }
@@ -286,6 +290,18 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     });
   }
 
+  void _onMoveNumberSubmitted(String value) {
+    var parts = _fen.split(' ');
+    final newCount = int.tryParse(value);
+    if (newCount != null && newCount > 0) {
+      parts[5] = value;
+    }
+
+    setState(() {
+      _fen = parts.join(' ');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = <Widget>[
@@ -323,6 +339,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         onBlackOOOChanged: _onBlackOOOChanged,
         onEnPassantChanged: _onEnPassantChanged,
         onHalfMoveCountSubmitted: _onHalfMoveCountSubmitted,
+        onMoveNumberSubmitted: _onMoveNumberSubmitted,
       )
     ];
     return LayoutBuilder(

@@ -14,6 +14,7 @@ class AdvancedOptions extends StatelessWidget {
   final void Function(bool?) onBlackOOOChanged;
   final void Function(String?) onEnPassantChanged;
   final void Function(String) onHalfMoveCountSubmitted;
+  final void Function(String) onMoveNumberSubmitted;
 
   const AdvancedOptions({
     super.key,
@@ -26,14 +27,11 @@ class AdvancedOptions extends StatelessWidget {
     required this.onBlackOOOChanged,
     required this.onEnPassantChanged,
     required this.onHalfMoveCountSubmitted,
+    required this.onMoveNumberSubmitted,
   });
 
   @override
   Widget build(BuildContext context) {
-    ////////////////////////
-    print(currentFen);
-    ////////////////////////
-
     final fenParts = currentFen.split(' ');
     final castlesPart = fenParts[2];
     final whiteOO = castlesPart.contains('K');
@@ -80,6 +78,14 @@ class AdvancedOptions extends StatelessWidget {
               currentFen: currentFen,
               labels: labels,
               onSubmitted: onHalfMoveCountSubmitted,
+            ),
+            const Divider(
+              color: Colors.black,
+            ),
+            MoveNumberWidget(
+              currentFen: currentFen,
+              labels: labels,
+              onSubmitted: onMoveNumberSubmitted,
             ),
           ],
         ),
@@ -398,6 +404,63 @@ class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
           children: [
             Text(
               widget.labels.drawHalfMovesCountLabel,
+            ),
+            Expanded(
+              child: TextField(
+                controller: _fieldController,
+              ),
+            ),
+          ],
+        ),
+        ElevatedButton(
+          onPressed: () => widget.onSubmitted(_fieldController.text),
+          child: Text(
+            widget.labels.submitFieldLabel,
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class MoveNumberWidget extends StatefulWidget {
+  final String currentFen;
+  final Labels labels;
+  final void Function(String) onSubmitted;
+
+  const MoveNumberWidget({
+    super.key,
+    required this.currentFen,
+    required this.labels,
+    required this.onSubmitted,
+  });
+
+  @override
+  State<MoveNumberWidget> createState() => _MoveNumberWidgetState();
+}
+
+class _MoveNumberWidgetState extends State<MoveNumberWidget> {
+  final TextEditingController _fieldController =
+      TextEditingController(text: '');
+
+  @override
+  void initState() {
+    final String currentCount = widget.currentFen.split(' ')[5];
+    _fieldController.text = currentCount;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              widget.labels.moveNumberLabel,
             ),
             Expanded(
               child: TextField(
