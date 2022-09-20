@@ -198,9 +198,6 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     final rank = turn ? 4 : 3;
     final currentEpSquareValue = parts[3];
     final expectedPawn = turn ? 'p' : 'P';
-    //////////////////////
-    print(currentEpSquareValue);
-    //////////////////////
     if (currentEpSquareValue != '-') {
       String pieceAtEpSquare;
       final currentEpFileStr = currentEpSquareValue.charAt(0);
@@ -306,9 +303,6 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
       setState(() {
         _fen = parts.join(' ');
       });
-      ////////////////////////////
-      print(_fen);
-      ////////////////////////////
     }
   }
 

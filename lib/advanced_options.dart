@@ -266,10 +266,6 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
 
   @override
   Widget build(BuildContext context) {
-    ///////////////////////////
-    print(widget.currentFen);
-    ///////////////////////////
-
     final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
 
     if (!_checkCorrectDropdown(dropdownValue)) {
