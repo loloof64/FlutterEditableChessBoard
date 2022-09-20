@@ -48,6 +48,7 @@ class AdvancedOptions extends StatelessWidget {
           children: [
             TurnWidget(
               labels: labels,
+              currentFen: currentFen,
               onTurnChanged: onTurnChanged,
             ),
             const Divider(
@@ -89,11 +90,13 @@ class AdvancedOptions extends StatelessWidget {
 
 class TurnWidget extends StatefulWidget {
   final Labels labels;
+  final String currentFen;
   final void Function(bool turn) onTurnChanged;
 
   const TurnWidget({
     Key? key,
     required this.labels,
+    required this.currentFen,
     required this.onTurnChanged,
   }) : super(key: key);
 
@@ -103,6 +106,12 @@ class TurnWidget extends StatefulWidget {
 
 class _TurnWidgetState extends State<TurnWidget> {
   bool _isWhiteTurn = true;
+
+  @override
+  void initState() {
+    _isWhiteTurn = widget.currentFen.split(' ')[1] == 'w';
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -368,12 +377,13 @@ class DrawHalfMovesCountWidget extends StatefulWidget {
 }
 
 class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
-  late TextEditingController _fieldController;
+  final TextEditingController _fieldController =
+      TextEditingController(text: '');
 
   @override
   void initState() {
     final String currentCount = widget.currentFen.split(' ')[4];
-    _fieldController = TextEditingController(text: currentCount);
+    _fieldController.text = currentCount;
     super.initState();
   }
 
