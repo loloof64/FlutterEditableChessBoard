@@ -2,6 +2,7 @@ library editable_chess_board;
 
 import 'package:flutter/material.dart';
 import 'package:super_string/super_string.dart';
+import 'package:chess/chess.dart' as chess;
 
 import 'board_color.dart';
 import 'rich_chess_board.dart';
@@ -48,6 +49,9 @@ class Labels {
   /// Text used for the submit field value buttons.
   final String submitFieldLabel;
 
+  /// Text used for the current position label.
+  final String currentPositionLabel;
+
   Labels({
     required this.playerTurnLabel,
     required this.whitePlayerLabel,
@@ -61,6 +65,7 @@ class Labels {
     required this.drawHalfMovesCountLabel,
     required this.moveNumberLabel,
     required this.submitFieldLabel,
+    required this.currentPositionLabel,
   });
 }
 
@@ -302,6 +307,18 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     });
   }
 
+  void _onPositionFenSubmitted(String position) {
+    final isValidPosition = chess.Chess.validate_fen(position)['valid'] as bool;
+    if (isValidPosition) {
+      setState(() {
+        _fen = position;
+      });
+    }
+    //////////////////////
+    print(_fen);
+    //////////////////////
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = <Widget>[
@@ -340,6 +357,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         onEnPassantChanged: _onEnPassantChanged,
         onHalfMoveCountSubmitted: _onHalfMoveCountSubmitted,
         onMoveNumberSubmitted: _onMoveNumberSubmitted,
+        onPositionFenSubmitted: _onPositionFenSubmitted,
       )
     ];
     return LayoutBuilder(

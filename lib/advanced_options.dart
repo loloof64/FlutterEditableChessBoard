@@ -15,6 +15,7 @@ class AdvancedOptions extends StatelessWidget {
   final void Function(String?) onEnPassantChanged;
   final void Function(String) onHalfMoveCountSubmitted;
   final void Function(String) onMoveNumberSubmitted;
+  final void Function(String) onPositionFenSubmitted;
 
   const AdvancedOptions({
     super.key,
@@ -28,6 +29,7 @@ class AdvancedOptions extends StatelessWidget {
     required this.onEnPassantChanged,
     required this.onHalfMoveCountSubmitted,
     required this.onMoveNumberSubmitted,
+    required this.onPositionFenSubmitted,
   });
 
   @override
@@ -44,6 +46,14 @@ class AdvancedOptions extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            FenControlsWidget(
+              currentFen: currentFen,
+              labels: labels,
+              onPositionFenSubmitted: onPositionFenSubmitted,
+            ),
+            const Divider(
+              color: Colors.black,
+            ),
             TurnWidget(
               labels: labels,
               currentFen: currentFen,
@@ -475,6 +485,56 @@ class _MoveNumberWidgetState extends State<MoveNumberWidget> {
             widget.labels.submitFieldLabel,
           ),
         )
+      ],
+    );
+  }
+}
+
+class FenControlsWidget extends StatefulWidget {
+  final Labels labels;
+  final String currentFen;
+  final void Function(String) onPositionFenSubmitted;
+
+  const FenControlsWidget({
+    super.key,
+    required this.labels,
+    required this.currentFen,
+    required this.onPositionFenSubmitted,
+  });
+
+  @override
+  State<FenControlsWidget> createState() => _FenControlsWidgetState();
+}
+
+class _FenControlsWidgetState extends State<FenControlsWidget> {
+  final TextEditingController _positionFenController =
+      TextEditingController(text: '');
+
+  @override
+  void initState() {
+    _positionFenController.text = widget.currentFen;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text(widget.labels.currentPositionLabel),
+            Expanded(
+              child: TextField(
+                controller: _positionFenController,
+              ),
+            ),
+          ],
+        ),
+        ElevatedButton(
+          onPressed: () =>
+              widget.onPositionFenSubmitted(_positionFenController.text),
+          child: Text(widget.labels.submitFieldLabel),
+        ),
       ],
     );
   }
