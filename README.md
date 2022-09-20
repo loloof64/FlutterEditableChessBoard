@@ -11,7 +11,7 @@ With this widget, you can :
 * get the FEN value / set the board from a FEN value
 * adjusts itself its layout : either portrait or landscape.
 
-The widget has defined locales : english, spanish and french. It will try to use the device language, or fallback to english.
+Also, you must define all the labels text manually.
 
 ## Getting started
 

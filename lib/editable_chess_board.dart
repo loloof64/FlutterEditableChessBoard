@@ -210,6 +210,16 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
+        labels: Labels(
+          playerTurnLabel: 'Player turn :',
+          whitePlayerLabel: 'White',
+          blackPlayerLabel: 'Black',
+          availableCastlesLabel: 'Available castles :',
+          whiteOOLabel: 'White O-O',
+          whiteOOOLabel: 'White O-O-O',
+          blackOOLabel: 'Black O-O',
+          blackOOOLabel: 'Black O-O-O',
+        ),
         whiteOO: _whiteOO,
         whiteOOO: _whiteOOO,
         blackOO: _blackOO,

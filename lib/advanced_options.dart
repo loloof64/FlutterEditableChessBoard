@@ -1,6 +1,29 @@
 import 'package:flutter/material.dart';
 
+class Labels {
+  final String playerTurnLabel;
+  final String whitePlayerLabel;
+  final String blackPlayerLabel;
+  final String availableCastlesLabel;
+  final String whiteOOLabel;
+  final String whiteOOOLabel;
+  final String blackOOLabel;
+  final String blackOOOLabel;
+
+  Labels({
+    required this.playerTurnLabel,
+    required this.whitePlayerLabel,
+    required this.blackPlayerLabel,
+    required this.availableCastlesLabel,
+    required this.whiteOOLabel,
+    required this.whiteOOOLabel,
+    required this.blackOOLabel,
+    required this.blackOOOLabel,
+  });
+}
+
 class AdvancedOptions extends StatelessWidget {
+  final Labels labels;
   final bool whiteOO;
   final bool whiteOOO;
   final bool blackOO;
@@ -14,6 +37,7 @@ class AdvancedOptions extends StatelessWidget {
 
   const AdvancedOptions({
     super.key,
+    required this.labels,
     required this.whiteOO,
     required this.whiteOOO,
     required this.blackOO,
@@ -33,9 +57,14 @@ class AdvancedOptions extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TurnWidget(
+              labels: labels,
               onTurnChanged: onTurnChanged,
             ),
+            const Divider(
+              color: Colors.black,
+            ),
             CastlesWidget(
+              labels: labels,
               whiteOO: whiteOO,
               whiteOOO: whiteOOO,
               blackOO: blackOO,
@@ -53,10 +82,12 @@ class AdvancedOptions extends StatelessWidget {
 }
 
 class TurnWidget extends StatefulWidget {
+  final Labels labels;
   final void Function(bool turn) onTurnChanged;
 
   const TurnWidget({
     Key? key,
+    required this.labels,
     required this.onTurnChanged,
   }) : super(key: key);
 
@@ -72,11 +103,11 @@ class _TurnWidgetState extends State<TurnWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Player turn',
+        Text(
+          widget.labels.playerTurnLabel,
         ),
         ListTile(
-          title: const Text('White'),
+          title: Text(widget.labels.whitePlayerLabel),
           leading: Radio<bool>(
             groupValue: _isWhiteTurn,
             value: true,
@@ -89,7 +120,7 @@ class _TurnWidgetState extends State<TurnWidget> {
           ),
         ),
         ListTile(
-          title: const Text('Black'),
+          title: Text(widget.labels.blackPlayerLabel),
           leading: Radio<bool>(
             groupValue: _isWhiteTurn,
             value: false,
@@ -107,6 +138,7 @@ class _TurnWidgetState extends State<TurnWidget> {
 }
 
 class CastlesWidget extends StatelessWidget {
+  final Labels labels;
   final bool whiteOO;
   final bool whiteOOO;
   final bool blackOO;
@@ -119,6 +151,7 @@ class CastlesWidget extends StatelessWidget {
 
   const CastlesWidget({
     super.key,
+    required this.labels,
     required this.whiteOO,
     required this.whiteOOO,
     required this.blackOO,
@@ -134,32 +167,32 @@ class CastlesWidget extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Available castles :'),
+        Text(labels.availableCastlesLabel),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text('White O-O'),
+            Text(labels.whiteOOLabel),
             Checkbox(value: whiteOO, onChanged: onWhiteOOChanged),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text('White O-O-O'),
+            Text(labels.whiteOOOLabel),
             Checkbox(value: whiteOOO, onChanged: onWhiteOOOChanged),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text('Black O-O'),
+            Text(labels.blackOOLabel),
             Checkbox(value: blackOO, onChanged: onBlackOOChanged),
           ],
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text('Black O-O-O'),
+            Text(labels.blackOOOLabel),
             Checkbox(value: blackOOO, onChanged: onBlackOOOChanged),
           ],
         ),
