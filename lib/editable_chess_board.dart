@@ -8,6 +8,88 @@ import 'selection_zone.dart';
 import 'piece.dart';
 import 'advanced_options.dart';
 
+/// Texts used for the labels.
+class Labels {
+  /// Text used for player turn label.
+  final String playerTurnLabel;
+
+  /// Text used for white player label.
+  final String whitePlayerLabel;
+
+  /// Text used for black player label.
+  final String blackPlayerLabel;
+
+  /// Text used for available castles label.
+  final String availableCastlesLabel;
+
+  /// Text used for white short castle label.
+  final String whiteOOLabel;
+
+  /// Text used for white long label.
+  final String whiteOOOLabel;
+
+  /// Text used for black short castle label.
+  final String blackOOLabel;
+
+  /// Text used for black long castle label.
+  final String blackOOOLabel;
+
+  /// Text used for en passant square label.
+  final String enPassantLabel;
+
+  /// Text used for file A label.
+  final String fileALabel;
+
+  /// Text used for file B label.
+  final String fileBLabel;
+
+  /// Text used for file C label.
+  final String fileCLabel;
+
+  /// Text used for file D label.
+  final String fileDLabel;
+
+  /// Text used for file E label.
+  final String fileELabel;
+
+  /// Text used for file F label.
+  final String fileFLabel;
+
+  /// Text used for file G label.
+  final String fileGLabel;
+
+  /// Text used for file H label.
+  final String fileHLabel;
+
+  /// Text used for rank 3 label.
+  final String rank3Label;
+
+  /// Text used for rank 6 label.
+  final String rank6Label;
+
+  Labels({
+    required this.playerTurnLabel,
+    required this.whitePlayerLabel,
+    required this.blackPlayerLabel,
+    required this.availableCastlesLabel,
+    required this.whiteOOLabel,
+    required this.whiteOOOLabel,
+    required this.blackOOLabel,
+    required this.blackOOOLabel,
+    required this.enPassantLabel,
+    required this.fileALabel,
+    required this.fileBLabel,
+    required this.fileCLabel,
+    required this.fileDLabel,
+    required this.fileELabel,
+    required this.fileFLabel,
+    required this.fileGLabel,
+    required this.fileHLabel,
+    required this.rank3Label,
+    required this.rank6Label,
+  });
+}
+
 /// Editable chess board widget.
 class EditableChessBoard extends StatefulWidget {
   /// Board's position in Forsyth-Edwards Notation.
@@ -16,11 +98,15 @@ class EditableChessBoard extends StatefulWidget {
   // Size of the board.
   final double boardSize;
 
+  // Texts used for the labels.
+  final Labels labels;
+
   /// Constructor.
   const EditableChessBoard({
     Key? key,
     required this.initialFen,
     required this.boardSize,
+    required this.labels,
   }) : super(key: key);
 
   @override
@@ -210,16 +296,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
-        labels: Labels(
-          playerTurnLabel: 'Player turn :',
-          whitePlayerLabel: 'White',
-          blackPlayerLabel: 'Black',
-          availableCastlesLabel: 'Available castles :',
-          whiteOOLabel: 'White O-O',
-          whiteOOOLabel: 'White O-O-O',
-          blackOOLabel: 'Black O-O',
-          blackOOOLabel: 'Black O-O-O',
-        ),
+        labels: widget.labels,
         whiteOO: _whiteOO,
         whiteOOO: _whiteOOO,
         blackOO: _blackOO,

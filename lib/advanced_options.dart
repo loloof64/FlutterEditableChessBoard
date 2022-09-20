@@ -1,26 +1,5 @@
 import 'package:flutter/material.dart';
-
-class Labels {
-  final String playerTurnLabel;
-  final String whitePlayerLabel;
-  final String blackPlayerLabel;
-  final String availableCastlesLabel;
-  final String whiteOOLabel;
-  final String whiteOOOLabel;
-  final String blackOOLabel;
-  final String blackOOOLabel;
-
-  Labels({
-    required this.playerTurnLabel,
-    required this.whitePlayerLabel,
-    required this.blackPlayerLabel,
-    required this.availableCastlesLabel,
-    required this.whiteOOLabel,
-    required this.whiteOOOLabel,
-    required this.blackOOLabel,
-    required this.blackOOOLabel,
-  });
-}
+import 'editable_chess_board.dart';
 
 class AdvancedOptions extends StatelessWidget {
   final Labels labels;
