@@ -39,6 +39,12 @@ class Labels {
   /// Text used for en passant square label.
   final String enPassantLabel;
 
+  /// Text used for the draw half moves count.
+  final String drawHalfMovesCountLabel;
+
+  /// Text used for the submit field value buttons.
+  final String submitFieldLabel;
+
   Labels({
     required this.playerTurnLabel,
     required this.whitePlayerLabel,
@@ -49,6 +55,8 @@ class Labels {
     required this.blackOOLabel,
     required this.blackOOOLabel,
     required this.enPassantLabel,
+    required this.drawHalfMovesCountLabel,
+    required this.submitFieldLabel,
   });
 }
 
@@ -266,6 +274,18 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     }
   }
 
+  void _onHalfMoveCountSubmitted(String value) {
+    var parts = _fen.split(' ');
+    final newCount = int.tryParse(value);
+    if (newCount != null) {
+      parts[4] = value;
+    }
+
+    setState(() {
+      _fen = parts.join(' ');
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final content = <Widget>[
@@ -302,6 +322,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         onBlackOOChanged: _onBlackOOChanged,
         onBlackOOOChanged: _onBlackOOOChanged,
         onEnPassantChanged: _onEnPassantChanged,
+        onHalfMoveCountSubmitted: _onHalfMoveCountSubmitted,
       )
     ];
     return LayoutBuilder(

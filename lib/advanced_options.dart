@@ -13,6 +13,7 @@ class AdvancedOptions extends StatelessWidget {
   final void Function(bool?) onBlackOOChanged;
   final void Function(bool?) onBlackOOOChanged;
   final void Function(String?) onEnPassantChanged;
+  final void Function(String) onHalfMoveCountSubmitted;
 
   const AdvancedOptions({
     super.key,
@@ -24,6 +25,7 @@ class AdvancedOptions extends StatelessWidget {
     required this.onBlackOOChanged,
     required this.onBlackOOOChanged,
     required this.onEnPassantChanged,
+    required this.onHalfMoveCountSubmitted,
   });
 
   @override
@@ -69,6 +71,14 @@ class AdvancedOptions extends StatelessWidget {
               currentFen: currentFen,
               labels: labels,
               onChanged: onEnPassantChanged,
+            ),
+            const Divider(
+              color: Colors.black,
+            ),
+            DrawHalfMovesCountWidget(
+              currentFen: currentFen,
+              labels: labels,
+              onSubmitted: onHalfMoveCountSubmitted,
             ),
           ],
         ),
@@ -335,6 +345,63 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
           },
         ),
         Text(dropdownValue != items.first ? (whiteTurn ? '6' : '3') : ''),
+      ],
+    );
+  }
+}
+
+class DrawHalfMovesCountWidget extends StatefulWidget {
+  final String currentFen;
+  final Labels labels;
+  final void Function(String) onSubmitted;
+
+  const DrawHalfMovesCountWidget({
+    super.key,
+    required this.currentFen,
+    required this.labels,
+    required this.onSubmitted,
+  });
+
+  @override
+  State<DrawHalfMovesCountWidget> createState() =>
+      _DrawHalfMovesCountWidgetState();
+}
+
+class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
+  late TextEditingController _fieldController;
+
+  @override
+  void initState() {
+    final String currentCount = widget.currentFen.split(' ')[4];
+    _fieldController = TextEditingController(text: currentCount);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
+          children: [
+            Text(
+              widget.labels.drawHalfMovesCountLabel,
+            ),
+            Expanded(
+              child: TextField(
+                controller: _fieldController,
+              ),
+            ),
+          ],
+        ),
+        ElevatedButton(
+          onPressed: () => widget.onSubmitted(_fieldController.text),
+          child: Text(
+            widget.labels.submitFieldLabel,
+          ),
+        )
       ],
     );
   }
