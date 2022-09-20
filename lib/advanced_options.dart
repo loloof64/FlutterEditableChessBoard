@@ -256,10 +256,6 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
         .reversed
         .toList();
 
-    ///////////////////////////
-    print(piecesArray[rank]);
-    ///////////////////////////
-
     if (value == items.first) return true;
     if (value == widget.labels.fileALabel) {
       return piecesArray[rank][0] == expectedPawnValue;
@@ -291,6 +287,13 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
   @override
   Widget build(BuildContext context) {
     final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
+
+    if (!_checkCorrectDropdown(dropdownValue)) {
+      setState(() {
+        dropdownValue = items.first;
+      });
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.baseline,
