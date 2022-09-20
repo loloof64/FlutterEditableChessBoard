@@ -138,7 +138,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
       {required int file, required int rank, required Piece? pieceType}) {
     var fenParts = _fen.split(' ');
     var piecesArray = getPiecesArray(_fen);
-    piecesArray[rank][file] = pieceType != null
+    piecesArray[7 - rank][file] = pieceType != null
         ? (pieceType.color == BoardColor.black
             ? pieceType.type.toLowerCase()
             : pieceType.type.toUpperCase())
@@ -195,7 +195,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
     // Also update en passant square
     final piecesArray = getPiecesArray(_fen);
-    final rank = turn ? 4 : 3;
+    final rank = 7 - (turn ? 4 : 3);
     final currentEpSquareValue = parts[3];
     final expectedPawn = turn ? 'p' : 'P';
     if (currentEpSquareValue != '-') {

@@ -28,25 +28,21 @@ Future<PieceType?> defaultPromoting() => Future.value(PieceType.queen);
 List<List<String>> getPiecesArray(String fen) {
   var fenParts = fen.split(' ');
   final lines = fenParts[0].split('/');
-  var piecesArray = lines
-      .map((currentLine) {
-        var arrayLine = <String>[];
-        final elements = currentLine.split('');
-        for (var currentElement in elements) {
-          if (currentElement.isNumeric) {
-            final holesCount = currentElement.codeUnitAt(0) - '0'.codeUnitAt(0);
-            for (int j = 0; j < holesCount; j++) {
-              arrayLine.add('');
-            }
-          } else {
-            arrayLine.add(currentElement);
-          }
+  var piecesArray = lines.map((currentLine) {
+    var arrayLine = <String>[];
+    final elements = currentLine.split('');
+    for (var currentElement in elements) {
+      if (currentElement.isNumeric) {
+        final holesCount = currentElement.codeUnitAt(0) - '0'.codeUnitAt(0);
+        for (int j = 0; j < holesCount; j++) {
+          arrayLine.add('');
         }
-        return arrayLine;
-      })
-      .toList()
-      .reversed
-      .toList();
+      } else {
+        arrayLine.add(currentElement);
+      }
+    }
+    return arrayLine;
+  }).toList();
 
   return piecesArray;
 }

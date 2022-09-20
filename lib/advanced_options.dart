@@ -35,6 +35,9 @@ class AdvancedOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ////////////////////////
+    print(currentFen);
+    ////////////////////////
     return Flexible(
       child: SingleChildScrollView(
         child: Column(
@@ -232,7 +235,7 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
 
   bool _checkCorrectDropdown(String value) {
     final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
-    final rank = whiteTurn ? 4 : 3;
+    final rank = 7 - (whiteTurn ? 4 : 3);
     final expectedPawnValue = whiteTurn ? 'p' : 'P';
     final piecesArray = getPiecesArray(widget.currentFen);
 
