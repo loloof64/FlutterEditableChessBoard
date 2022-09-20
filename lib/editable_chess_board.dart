@@ -146,6 +146,8 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         .join("/");
 
     fenParts[0] = newFenBoardPart;
+    _updateEnPassantSquare(fenParts, fenParts[1] == 'w');
+
     final newFen = fenParts.join(" ");
 
     setState(() {
@@ -165,16 +167,11 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     });
   }
 
-  void _onTurnChanged(bool turn) {
-    var parts = _fen.split(' ');
-    final newTurnStr = turn ? 'w' : 'b';
-    parts[1] = newTurnStr;
-
-    // Also update en passant square
-    final piecesArray = getPiecesArray(_fen);
-    final rank = 7 - (turn ? 4 : 3);
-    final currentEpSquareValue = parts[3];
-    final expectedPawn = turn ? 'p' : 'P';
+  void _updateEnPassantSquare(List<String> fenParts, bool whiteTurn) {
+    final piecesArray = getPiecesArray(fenParts.join(' '));
+    final rank = 7 - (whiteTurn ? 4 : 3);
+    final currentEpSquareValue = fenParts[3];
+    final expectedPawn = whiteTurn ? 'p' : 'P';
     if (currentEpSquareValue != '-') {
       String pieceAtEpSquare;
       final currentEpFileStr = currentEpSquareValue.charAt(0);
@@ -202,11 +199,19 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         String currentEpRankStr = currentEpSquareValue.charAt(1);
         int currentEpRank = int.parse(currentEpRankStr);
         int newEpRank = 9 - currentEpRank;
-        parts[3] = "$currentEpFileStr$newEpRank";
+        fenParts[3] = "$currentEpFileStr$newEpRank";
       } else {
-        parts[3] = '-';
+        fenParts[3] = '-';
       }
     }
+  }
+
+  void _onTurnChanged(bool turn) {
+    var parts = _fen.split(' ');
+    final newTurnStr = turn ? 'w' : 'b';
+    parts[1] = newTurnStr;
+
+    _updateEnPassantSquare(parts, turn);
 
     setState(() {
       _fen = parts.join(' ');
@@ -314,9 +319,6 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         _fen = position;
       });
     }
-    //////////////////////
-    print(_fen);
-    //////////////////////
   }
 
   @override
