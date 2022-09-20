@@ -3,7 +3,13 @@ import 'package:super_string/super_string.dart';
 import 'editable_chess_board.dart';
 import 'utils.dart';
 
-class AdvancedOptions extends StatelessWidget {
+class StringHolder {
+  String value;
+
+  StringHolder(this.value);
+}
+
+class AdvancedOptions extends StatefulWidget {
   final String currentFen;
   final Labels labels;
 
@@ -33,8 +39,13 @@ class AdvancedOptions extends StatelessWidget {
   });
 
   @override
+  State<AdvancedOptions> createState() => _AdvancedOptionsState();
+}
+
+class _AdvancedOptionsState extends State<AdvancedOptions> {
+  @override
   Widget build(BuildContext context) {
-    final fenParts = currentFen.split(' ');
+    final fenParts = widget.currentFen.split(' ');
     final castlesPart = fenParts[2];
     final whiteOO = castlesPart.contains('K');
     final whiteOOO = castlesPart.contains('Q');
@@ -47,55 +58,55 @@ class AdvancedOptions extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FenControlsWidget(
-              currentFen: currentFen,
-              labels: labels,
-              onPositionFenSubmitted: onPositionFenSubmitted,
+              currentFen: widget.currentFen,
+              labels: widget.labels,
+              onPositionFenSubmitted: widget.onPositionFenSubmitted,
             ),
             const Divider(
               color: Colors.black,
             ),
             TurnWidget(
-              labels: labels,
-              currentFen: currentFen,
-              onTurnChanged: onTurnChanged,
+              labels: widget.labels,
+              currentFen: widget.currentFen,
+              onTurnChanged: widget.onTurnChanged,
             ),
             const Divider(
               color: Colors.black,
             ),
             CastlesWidget(
-              labels: labels,
+              labels: widget.labels,
               whiteOO: whiteOO,
               whiteOOO: whiteOOO,
               blackOO: blackOO,
               blackOOO: blackOOO,
-              onWhiteOOChanged: onWhiteOOChanged,
-              onWhiteOOOChanged: onWhiteOOOChanged,
-              onBlackOOChanged: onBlackOOChanged,
-              onBlackOOOChanged: onBlackOOOChanged,
+              onWhiteOOChanged: widget.onWhiteOOChanged,
+              onWhiteOOOChanged: widget.onWhiteOOOChanged,
+              onBlackOOChanged: widget.onBlackOOChanged,
+              onBlackOOOChanged: widget.onBlackOOOChanged,
             ),
             const Divider(
               color: Colors.black,
             ),
             EnPassantWidget(
-              currentFen: currentFen,
-              labels: labels,
-              onChanged: onEnPassantChanged,
+              currentFen: widget.currentFen,
+              labels: widget.labels,
+              onChanged: widget.onEnPassantChanged,
             ),
             const Divider(
               color: Colors.black,
             ),
             DrawHalfMovesCountWidget(
-              currentFen: currentFen,
-              labels: labels,
-              onSubmitted: onHalfMoveCountSubmitted,
+              currentFen: widget.currentFen,
+              labels: widget.labels,
+              onSubmitted: widget.onHalfMoveCountSubmitted,
             ),
             const Divider(
               color: Colors.black,
             ),
             MoveNumberWidget(
-              currentFen: currentFen,
-              labels: labels,
-              onSubmitted: onMoveNumberSubmitted,
+              currentFen: widget.currentFen,
+              labels: widget.labels,
+              onSubmitted: widget.onMoveNumberSubmitted,
             ),
           ],
         ),
@@ -104,7 +115,7 @@ class AdvancedOptions extends StatelessWidget {
   }
 }
 
-class TurnWidget extends StatefulWidget {
+class TurnWidget extends StatelessWidget {
   final Labels labels;
   final String currentFen;
   final void Function(bool turn) onTurnChanged;
@@ -117,49 +128,31 @@ class TurnWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<TurnWidget> createState() => _TurnWidgetState();
-}
-
-class _TurnWidgetState extends State<TurnWidget> {
-  bool _isWhiteTurn = true;
-
-  @override
-  void initState() {
-    _isWhiteTurn = widget.currentFen.split(' ')[1] == 'w';
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final isWhiteTurn = currentFen.split(' ')[1] == 'w';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.labels.playerTurnLabel,
+          labels.playerTurnLabel,
         ),
         ListTile(
-          title: Text(widget.labels.whitePlayerLabel),
+          title: Text(labels.whitePlayerLabel),
           leading: Radio<bool>(
-            groupValue: _isWhiteTurn,
+            groupValue: isWhiteTurn,
             value: true,
             onChanged: (value) {
-              setState(() {
-                _isWhiteTurn = value ?? true;
-                widget.onTurnChanged(_isWhiteTurn);
-              });
+              onTurnChanged(value ?? true);
             },
           ),
         ),
         ListTile(
-          title: Text(widget.labels.blackPlayerLabel),
+          title: Text(labels.blackPlayerLabel),
           leading: Radio<bool>(
-            groupValue: _isWhiteTurn,
+            groupValue: isWhiteTurn,
             value: false,
             onChanged: (value) {
-              setState(() {
-                _isWhiteTurn = value ?? false;
-                widget.onTurnChanged(_isWhiteTurn);
-              });
+              onTurnChanged(value ?? false);
             },
           ),
         ),
@@ -232,76 +225,38 @@ class CastlesWidget extends StatelessWidget {
   }
 }
 
-class EnPassantWidget extends StatefulWidget {
+class EnPassantWidget extends StatelessWidget {
   final String currentFen;
   final Labels labels;
   final void Function(String?) onChanged;
 
-  const EnPassantWidget({
+  final List<String> items = <String>[
+    '-',
+    'a',
+    'b',
+    'c',
+    'd',
+    'e',
+    'f',
+    'g',
+    'h',
+  ];
+  final StringHolder dropdownValue = StringHolder('');
+
+  EnPassantWidget({
     super.key,
     required this.currentFen,
     required this.labels,
     required this.onChanged,
-  });
-
-  @override
-  State<EnPassantWidget> createState() => _EnPassantWidgetState();
-}
-
-class _EnPassantWidgetState extends State<EnPassantWidget> {
-  late List<String> items;
-  late String dropdownValue;
-
-  @override
-  void initState() {
-    items = <String>[
-      '-',
-      'a',
-      'b',
-      'c',
-      'd',
-      'e',
-      'f',
-      'g',
-      'h',
-    ];
-
-    final fenParts = widget.currentFen.split(' ');
-    final currentEpValue = fenParts[3];
-
-    String epValue;
-
-    if (currentEpValue == '-') {
-      epValue = '-';
-    } else if (currentEpValue.charAt(0) == 'a') {
-      epValue = 'a';
-    } else if (currentEpValue.charAt(0) == 'b') {
-      epValue = 'b';
-    } else if (currentEpValue.charAt(0) == 'c') {
-      epValue = 'c';
-    } else if (currentEpValue.charAt(0) == 'd') {
-      epValue = 'd';
-    } else if (currentEpValue.charAt(0) == 'e') {
-      epValue = 'e';
-    } else if (currentEpValue.charAt(0) == 'f') {
-      epValue = 'f';
-    } else if (currentEpValue.charAt(0) == 'g') {
-      epValue = 'g';
-    } else if (currentEpValue.charAt(0) == 'h') {
-      epValue = 'h';
-    } else {
-      epValue = '-';
-    }
-
-    dropdownValue = epValue;
-    super.initState();
+  }) {
+    dropdownValue.value = currentFen.split(' ')[3].charAt(0);
   }
 
   bool _checkCorrectDropdown(String value) {
-    final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
+    final whiteTurn = currentFen.split(' ')[1] == 'w';
     final rank = 7 - (whiteTurn ? 4 : 3);
     final expectedPawnValue = whiteTurn ? 'p' : 'P';
-    final piecesArray = getPiecesArray(widget.currentFen);
+    final piecesArray = getPiecesArray(currentFen);
 
     if (value == items.first) return true;
     if (value == 'a') {
@@ -333,12 +288,10 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final whiteTurn = widget.currentFen.split(' ')[1] == 'w';
+    final whiteTurn = currentFen.split(' ')[1] == 'w';
 
-    if (!_checkCorrectDropdown(dropdownValue)) {
-      setState(() {
-        dropdownValue = items.first;
-      });
+    if (!_checkCorrectDropdown(dropdownValue.value)) {
+      dropdownValue.value = items.first;
     }
 
     return Row(
@@ -346,9 +299,9 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
       crossAxisAlignment: CrossAxisAlignment.baseline,
       textBaseline: TextBaseline.alphabetic,
       children: [
-        Text(widget.labels.enPassantLabel),
+        Text(labels.enPassantLabel),
         DropdownButton<String>(
-          value: dropdownValue,
+          value: dropdownValue.value,
           items: items
               .map(
                 (currentItem) => DropdownMenuItem<String>(
@@ -361,46 +314,34 @@ class _EnPassantWidgetState extends State<EnPassantWidget> {
             if (value != null) {
               final isCorrectDropdown = _checkCorrectDropdown(value);
               if (isCorrectDropdown) {
-                setState(() {
-                  dropdownValue = value;
-                  widget.onChanged(value);
-                });
+                dropdownValue.value = value;
+                onChanged(value);
               }
             }
           },
         ),
-        Text(dropdownValue != items.first ? (whiteTurn ? '6' : '3') : ''),
+        Text(dropdownValue.value != items.first ? (whiteTurn ? '6' : '3') : ''),
       ],
     );
   }
 }
 
-class DrawHalfMovesCountWidget extends StatefulWidget {
+class DrawHalfMovesCountWidget extends StatelessWidget {
   final String currentFen;
   final Labels labels;
   final void Function(String) onSubmitted;
 
-  const DrawHalfMovesCountWidget({
+  final TextEditingController _fieldController =
+      TextEditingController(text: '');
+
+  DrawHalfMovesCountWidget({
     super.key,
     required this.currentFen,
     required this.labels,
     required this.onSubmitted,
-  });
-
-  @override
-  State<DrawHalfMovesCountWidget> createState() =>
-      _DrawHalfMovesCountWidgetState();
-}
-
-class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
-  final TextEditingController _fieldController =
-      TextEditingController(text: '');
-
-  @override
-  void initState() {
-    final String currentCount = widget.currentFen.split(' ')[4];
+  }) {
+    final String currentCount = currentFen.split(' ')[4];
     _fieldController.text = currentCount;
-    super.initState();
   }
 
   @override
@@ -413,7 +354,7 @@ class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              widget.labels.drawHalfMovesCountLabel,
+              labels.drawHalfMovesCountLabel,
             ),
             Expanded(
               child: TextField(
@@ -423,9 +364,9 @@ class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
           ],
         ),
         ElevatedButton(
-          onPressed: () => widget.onSubmitted(_fieldController.text),
+          onPressed: () => onSubmitted(_fieldController.text),
           child: Text(
-            widget.labels.submitFieldLabel,
+            labels.submitFieldLabel,
           ),
         )
       ],
@@ -433,31 +374,22 @@ class _DrawHalfMovesCountWidgetState extends State<DrawHalfMovesCountWidget> {
   }
 }
 
-class MoveNumberWidget extends StatefulWidget {
+class MoveNumberWidget extends StatelessWidget {
   final String currentFen;
   final Labels labels;
   final void Function(String) onSubmitted;
 
-  const MoveNumberWidget({
+  final TextEditingController _fieldController =
+      TextEditingController(text: '');
+
+  MoveNumberWidget({
     super.key,
     required this.currentFen,
     required this.labels,
     required this.onSubmitted,
-  });
-
-  @override
-  State<MoveNumberWidget> createState() => _MoveNumberWidgetState();
-}
-
-class _MoveNumberWidgetState extends State<MoveNumberWidget> {
-  final TextEditingController _fieldController =
-      TextEditingController(text: '');
-
-  @override
-  void initState() {
-    final String currentCount = widget.currentFen.split(' ')[5];
+  }) {
+    final String currentCount = currentFen.split(' ')[5];
     _fieldController.text = currentCount;
-    super.initState();
   }
 
   @override
@@ -470,7 +402,7 @@ class _MoveNumberWidgetState extends State<MoveNumberWidget> {
           textBaseline: TextBaseline.alphabetic,
           children: [
             Text(
-              widget.labels.moveNumberLabel,
+              labels.moveNumberLabel,
             ),
             Expanded(
               child: TextField(
@@ -480,9 +412,9 @@ class _MoveNumberWidgetState extends State<MoveNumberWidget> {
           ],
         ),
         ElevatedButton(
-          onPressed: () => widget.onSubmitted(_fieldController.text),
+          onPressed: () => onSubmitted(_fieldController.text),
           child: Text(
-            widget.labels.submitFieldLabel,
+            labels.submitFieldLabel,
           ),
         )
       ],
@@ -490,30 +422,21 @@ class _MoveNumberWidgetState extends State<MoveNumberWidget> {
   }
 }
 
-class FenControlsWidget extends StatefulWidget {
+class FenControlsWidget extends StatelessWidget {
   final Labels labels;
   final String currentFen;
   final void Function(String) onPositionFenSubmitted;
 
-  const FenControlsWidget({
+  final TextEditingController _positionFenController =
+      TextEditingController(text: '');
+
+  FenControlsWidget({
     super.key,
     required this.labels,
     required this.currentFen,
     required this.onPositionFenSubmitted,
-  });
-
-  @override
-  State<FenControlsWidget> createState() => _FenControlsWidgetState();
-}
-
-class _FenControlsWidgetState extends State<FenControlsWidget> {
-  final TextEditingController _positionFenController =
-      TextEditingController(text: '');
-
-  @override
-  void initState() {
-    _positionFenController.text = widget.currentFen;
-    super.initState();
+  }) {
+    _positionFenController.text = currentFen;
   }
 
   @override
@@ -522,7 +445,7 @@ class _FenControlsWidgetState extends State<FenControlsWidget> {
       children: [
         Row(
           children: [
-            Text(widget.labels.currentPositionLabel),
+            Text(labels.currentPositionLabel),
             Expanded(
               child: TextField(
                 controller: _positionFenController,
@@ -531,9 +454,8 @@ class _FenControlsWidgetState extends State<FenControlsWidget> {
           ],
         ),
         ElevatedButton(
-          onPressed: () =>
-              widget.onPositionFenSubmitted(_positionFenController.text),
-          child: Text(widget.labels.submitFieldLabel),
+          onPressed: () => onPositionFenSubmitted(_positionFenController.text),
+          child: Text(labels.submitFieldLabel),
         ),
       ],
     );
