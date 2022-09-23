@@ -8,7 +8,7 @@ import 'piece_type.dart';
 import 'square.dart';
 
 List<Square> getSquares(Board board) {
-  final chess = ch.Chess.fromFEN(board.fen, check_validity: true);
+  final chess = ch.Chess.fromFEN(board.fen, check_validity: false);
   return ch.Chess.SQUARES.keys.map((squareName) {
     return Square(
       board: board,

@@ -12,6 +12,7 @@ class StringHolder {
 }
 
 class AdvancedOptions extends StatefulWidget {
+  final String initialFen;
   final String currentFen;
   final Labels labels;
 
@@ -28,6 +29,7 @@ class AdvancedOptions extends StatefulWidget {
   const AdvancedOptions({
     super.key,
     required this.currentFen,
+    required this.initialFen,
     required this.labels,
     required this.onTurnChanged,
     required this.onWhiteOOChanged,
@@ -60,6 +62,7 @@ class _AdvancedOptionsState extends State<AdvancedOptions> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             FenControlsWidget(
+              initialFen: widget.initialFen,
               currentFen: widget.currentFen,
               labels: widget.labels,
               onPositionFenSubmitted: widget.onPositionFenSubmitted,
@@ -427,6 +430,7 @@ class MoveNumberWidget extends StatelessWidget {
 class FenControlsWidget extends StatelessWidget {
   final Labels labels;
   final String currentFen;
+  final String initialFen;
   final void Function(String) onPositionFenSubmitted;
 
   final TextEditingController _positionFenController =
@@ -436,6 +440,7 @@ class FenControlsWidget extends StatelessWidget {
     super.key,
     required this.labels,
     required this.currentFen,
+    required this.initialFen,
     required this.onPositionFenSubmitted,
   }) {
     _positionFenController.text = currentFen;
@@ -480,6 +485,12 @@ class FenControlsWidget extends StatelessWidget {
             },
             child: Text(labels.pasteFenLabel),
           ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            onPositionFenSubmitted(initialFen);
+          },
+          child: Text(labels.resetPosition),
         )
       ],
     );

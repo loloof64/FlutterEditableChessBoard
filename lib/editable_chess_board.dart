@@ -58,6 +58,9 @@ class Labels {
   /// Text used for the paste position (from clipboard) label.
   final String pasteFenLabel;
 
+  /// Text used for loading position that was first used when showing this widget.
+  final String resetPosition;
+
   Labels({
     required this.playerTurnLabel,
     required this.whitePlayerLabel,
@@ -74,6 +77,7 @@ class Labels {
     required this.currentPositionLabel,
     required this.copyFenLabel,
     required this.pasteFenLabel,
+    required this.resetPosition,
   });
 }
 
@@ -357,6 +361,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
+        initialFen: widget.initialFen,
         currentFen: _fen,
         labels: widget.labels,
         onTurnChanged: _onTurnChanged,
