@@ -507,6 +507,15 @@ class FenControlsWidget extends StatelessWidget {
             },
             child: Text(labels.standardPosition),
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: () {
+              onPositionFenSubmitted("8/8/8/8/8/8/8/8 w - - 0 1");
+            },
+            child: Text(labels.erasePosition),
+          ),
         )
       ],
     );

@@ -58,11 +58,14 @@ class Labels {
   /// Text used for the paste position (from clipboard) label.
   final String pasteFenLabel;
 
-  /// Text used for loading position that was first used when showing this widget.
+  /// Text used for loading position that was first used when showing this widget button label.
   final String resetPosition;
 
-  /// Text used for loading standard position.
+  /// Text used for loading standard position button label.
   final String standardPosition;
+
+  /// Text used for erasing position button label.
+  final String erasePosition;
 
   Labels({
     required this.playerTurnLabel,
@@ -82,6 +85,7 @@ class Labels {
     required this.pasteFenLabel,
     required this.resetPosition,
     required this.standardPosition,
+    required this.erasePosition,
   });
 }
 
