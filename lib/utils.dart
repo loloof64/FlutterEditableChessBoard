@@ -1,4 +1,4 @@
-import 'package:chess2/chess.dart' as ch;
+import 'package:chess_loloof64/chess_loloof64.dart' as ch;
 import 'package:fpdart/fpdart.dart';
 
 import 'board.dart';
@@ -8,7 +8,7 @@ import 'piece_type.dart';
 import 'square.dart';
 
 List<Square> getSquares(Board board) {
-  final chess = ch.Chess.fromFEN(board.fen, true);
+  final chess = ch.Chess.fromFEN(board.fen, check_validity: true);
   return ch.Chess.SQUARES.keys.map((squareName) {
     return Square(
       board: board,
