@@ -61,6 +61,9 @@ class Labels {
   /// Text used for loading position that was first used when showing this widget.
   final String resetPosition;
 
+  /// Text used for loading standard position.
+  final String standardPosition;
+
   Labels({
     required this.playerTurnLabel,
     required this.whitePlayerLabel,
@@ -78,6 +81,7 @@ class Labels {
     required this.copyFenLabel,
     required this.pasteFenLabel,
     required this.resetPosition,
+    required this.standardPosition,
   });
 }
 
