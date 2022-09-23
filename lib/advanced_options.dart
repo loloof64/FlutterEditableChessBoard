@@ -460,9 +460,13 @@ class FenControlsWidget extends StatelessWidget {
             ),
           ],
         ),
-        ElevatedButton(
-          onPressed: () => onPositionFenSubmitted(_positionFenController.text),
-          child: Text(labels.submitFieldLabel),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: () =>
+                onPositionFenSubmitted(_positionFenController.text),
+            child: Text(labels.submitFieldLabel),
+          ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
@@ -486,11 +490,14 @@ class FenControlsWidget extends StatelessWidget {
             child: Text(labels.pasteFenLabel),
           ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            onPositionFenSubmitted(initialFen);
-          },
-          child: Text(labels.resetPosition),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ElevatedButton(
+            onPressed: () {
+              onPositionFenSubmitted(initialFen);
+            },
+            child: Text(labels.resetPosition),
+          ),
         )
       ],
     );
