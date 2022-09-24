@@ -2,7 +2,7 @@ A chess board that is not intended to play chess, but just defined a custom ches
 
 ## Features
 
-![Preview](./preview.png)
+![Preview](https://github.com/loloof64/FlutterEditableChessBoard/blob/main/preview.png)
 
 
 With this widget, you can :
