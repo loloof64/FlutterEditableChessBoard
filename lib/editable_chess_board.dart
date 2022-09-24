@@ -89,23 +89,35 @@ class Labels {
   });
 }
 
+/// A controller for the position value of the editable chess board.
+///
+/// Whenever the position of the editable board is updated, the controller gets
+/// updated with the new value, and the controller notifies its listeners.
+class PositionController extends ValueNotifier<String> {
+  /// Constructor with board's initial position in Forsyth-Edwards Notation.
+  PositionController(super.value);
+
+  /// Current position in Forsyth-Edwards Notation.
+  String get currentPosition => value;
+}
+
 /// Editable chess board widget.
 class EditableChessBoard extends StatefulWidget {
-  /// Board's position in Forsyth-Edwards Notation.
-  final String initialFen;
-
   // Size of the board.
   final double boardSize;
 
   // Texts used for the labels.
   final Labels labels;
 
+  /// A controller for the position value of this editable chess board.
+  final PositionController controller;
+
   /// Constructor.
   const EditableChessBoard({
     Key? key,
-    required this.initialFen,
     required this.boardSize,
     required this.labels,
+    required this.controller,
   }) : super(key: key);
 
   @override
@@ -114,6 +126,7 @@ class EditableChessBoard extends StatefulWidget {
 
 class _EditableChessBoardState extends State<EditableChessBoard> {
   late String _fen;
+  late String _initialFen;
   Piece? _editingPieceType;
 
   bool _whiteOO = true;
@@ -124,7 +137,8 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   @override
   void initState() {
     super.initState();
-    _fen = widget.initialFen;
+    _fen = widget.controller.value;
+    _initialFen = _fen;
   }
 
   void _onSquareClicked(int file, int rank) {
@@ -172,6 +186,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
     setState(() {
       _fen = newFen;
+      widget.controller.value = _fen;
     });
   }
 
@@ -235,6 +250,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
     setState(() {
       _fen = parts.join(' ');
+      widget.controller.value = _fen;
     });
   }
 
@@ -253,6 +269,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
     setState(() {
       _fen = parts.join(' ');
+      widget.controller.value = _fen;
     });
   }
 
@@ -304,6 +321,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
       }
       setState(() {
         _fen = parts.join(' ');
+        widget.controller.value = _fen;
       });
     }
   }
@@ -317,6 +335,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
     setState(() {
       _fen = parts.join(' ');
+      widget.controller.value = _fen;
     });
   }
 
@@ -329,6 +348,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
     setState(() {
       _fen = parts.join(' ');
+      widget.controller.value = _fen;
     });
   }
 
@@ -337,6 +357,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     if (isValidPosition) {
       setState(() {
         _fen = position;
+        widget.controller.value = _fen;
       });
     }
   }
@@ -369,7 +390,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         ],
       ),
       AdvancedOptions(
-        initialFen: widget.initialFen,
+        initialFen: _initialFen,
         currentFen: _fen,
         labels: widget.labels,
         onTurnChanged: _onTurnChanged,
