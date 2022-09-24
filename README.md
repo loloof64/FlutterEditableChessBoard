@@ -2,14 +2,15 @@ A chess board that is not intended to play chess, but just defined a custom ches
 
 ## Features
 
-//TODO add preview image.
+![Preview](./preview.png)
+
 
 With this widget, you can :
 * set value for each cell with a single click (first select the editing piece type / or the trash)
 * clear the board / set to the standard position
 * load the widget with a custom position and then reset to this initial position when needed
 * get the FEN value / set the board from a FEN value
-* adjusts itself its layout : either portrait or landscape.
+The board adjusts itself its layout : either portrait or landscape.
 
 Also, you must define all the labels text manually.
 
