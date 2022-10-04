@@ -1,4 +1,4 @@
-import 'package:chess_loloof64/chess_loloof64.dart' as ch;
+import 'package:chess/chess.dart' as ch;
 import 'package:fpdart/fpdart.dart';
 
 import 'board.dart';

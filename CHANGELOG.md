@@ -1,3 +1,7 @@
+## 0.1.6
+
+* Using latest version of chess package.
+
 ## 0.1.4
 
 * Bug fixed : example was not visible.

@@ -1,6 +1,6 @@
 name: editable_chess_board
 description: A chess board that is not intended to play chess, but just defined a custom chess position and get its code in Forsyth-Edwards Notation (FEN).
-version: 0.1.4
+version: 0.1.6
 repository: https://github.com/loloof64/FlutterEditableChessBoard
 
 environment:
@@ -15,7 +15,7 @@ dependencies:
   chess_vectors_flutter: ^1.0.18
   super_string: ^1.0.3
   clipboard: ^0.1.3
-  chess_loloof64: ^0.1.0
+  chess: ^0.8.0
 
 dev_dependencies:
   flutter_test:

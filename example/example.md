@@ -1,7 +1,7 @@
 ```dart
 import 'package:flutter/material.dart';
 import 'package:editable_chess_board/editable_chess_board.dart';
-import 'package:chess_loloof64/chess_loloof64.dart' as chess;
+import 'package:chess/chess.dart' as chess;
 
 void main() {
   runApp(const MyApp());
