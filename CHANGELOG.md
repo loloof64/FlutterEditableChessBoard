@@ -1,6 +1,6 @@
 ## 0.1.8
 
-* Updated fpdart dependency version.
+* Updated fpdart dependency version, and sdk version.
 
 ## 0.1.6
 
