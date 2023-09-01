@@ -1,3 +1,7 @@
+## 0.1.8
+
+* Updated fpdart dependency version.
+
 ## 0.1.6
 
 * Using latest version of chess package.
