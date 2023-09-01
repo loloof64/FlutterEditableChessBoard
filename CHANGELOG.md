@@ -1,4 +1,4 @@
-## 0.1.8
+## 0.1.7
 
 * Updated fpdart dependency version, and sdk version.
 
