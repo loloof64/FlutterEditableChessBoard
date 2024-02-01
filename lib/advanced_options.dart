@@ -505,6 +505,9 @@ class FenControlsWidget extends StatelessWidget {
             onPressed: () {
               onPositionFenSubmitted(chess.Chess().fen);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.yellow.shade300,
+            ),
             child: Text(labels.standardPosition),
           ),
         ),

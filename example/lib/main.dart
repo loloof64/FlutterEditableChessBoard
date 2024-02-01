@@ -1,4 +1,3 @@
-```dart
 import 'package:flutter/material.dart';
 import 'package:editable_chess_board/editable_chess_board.dart';
 import 'package:chess/chess.dart' as chess;
@@ -107,4 +106,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-```

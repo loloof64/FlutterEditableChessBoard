@@ -1,3 +1,8 @@
+## 0.1.8
+
+* Highlighting standard position button.
+* Replaced example snippet with a demo folder.
+
 ## 0.1.7
 
 * Updated fpdart dependency version, and sdk version.
