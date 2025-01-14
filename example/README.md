@@ -1,4 +1,4 @@
-# editable_chess_board_usage
+# example
 
 A new Flutter project.
 
