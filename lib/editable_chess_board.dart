@@ -1,8 +1,13 @@
 library editable_chess_board;
 
+import 'package:editable_chess_board/store/editing_store.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobx/mobx.dart';
 import 'package:super_string/super_string.dart';
 import 'package:chess/chess.dart' as chess;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 import 'board_color.dart';
 import 'rich_chess_board.dart';
@@ -93,12 +98,11 @@ class Labels {
 ///
 /// Whenever the position of the editable board is updated, the controller gets
 /// updated with the new value, and the controller notifies its listeners.
-class PositionController extends ValueNotifier<String> {
-  /// Constructor with board's initial position in Forsyth-Edwards Notation.
-  PositionController(super.value);
+class PositionController {
+  String position;
 
-  /// Current position in Forsyth-Edwards Notation.
-  String get currentPosition => value;
+  /// Constructor with board's initial position in Forsyth-Edwards Notation.
+  PositionController(this.position);
 }
 
 /// Editable chess board widget.
@@ -125,30 +129,96 @@ class EditableChessBoard extends StatefulWidget {
 }
 
 class _EditableChessBoardState extends State<EditableChessBoard> {
-  late String _fen;
   late String _initialFen;
-  Piece? _editingPieceType;
-
-  bool _whiteOO = true;
-  bool _whiteOOO = true;
-  bool _blackOO = true;
-  bool _blackOOO = true;
 
   @override
   void initState() {
     super.initState();
-    _fen = widget.controller.value;
-    _initialFen = _fen;
+    GetIt.instance.registerSingleton<EditingStore>(EditingStore());
+    final editingStore = GetIt.instance.get<EditingStore>();
+    _initialFen = widget.controller.position;
+    editingStore.setFen(_initialFen);
+  }
+
+  @override
+  void dispose() {
+    GetIt.instance.unregister<EditingStore>();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    final content = <Widget>[
+      Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: SizedBox(
+          width: widget.boardSize,
+          height: widget.boardSize,
+          child: ReactionBuilder(
+            builder: (context) {
+              return reaction((_) => editingStore.fen, (newFen) {
+                widget.controller.position = newFen;
+              });
+            },
+            child: Observer(builder: (_) {
+              return ChessBoard(
+                fen: editingStore.fen,
+                onSquareClicked: _onSquareClicked,
+              );
+            }),
+          ),
+        ),
+      ),
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: ReactionBuilder(
+            builder: (context) {
+              return reaction((_) => editingStore.fen, (newFen) {
+                widget.controller.position = newFen;
+              });
+            },
+            child: Options(
+              initialFen: _initialFen,
+              labels: widget.labels,
+            ),
+          ),
+        ),
+      )
+    ];
+
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
+    return isLandscape
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: content,
+          )
+        : Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: content,
+          );
   }
 
   void _onSquareClicked(int file, int rank) {
-    _updateFenPiece(file: file, rank: rank, pieceType: _editingPieceType);
+    final editingStore = GetIt.instance.get<EditingStore>();
+
+    _updateFenPiece(
+      file: file,
+      rank: rank,
+      pieceType: editingStore.editingPiece,
+    );
   }
 
   void _updateFenPiece(
       {required int file, required int rank, required Piece? pieceType}) {
-    var fenParts = _fen.split(' ');
-    var piecesArray = getPiecesArray(_fen);
+    final editingStore = GetIt.instance.get<EditingStore>();
+    final fen = editingStore.fen;
+    var fenParts = fen.split(' ');
+    var piecesArray = getPiecesArray(fen);
     piecesArray[7 - rank][file] = pieceType != null
         ? (pieceType.color == BoardColor.black
             ? pieceType.type.toLowerCase()
@@ -183,23 +253,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     _updateEnPassantSquare(fenParts, fenParts[1] == 'w');
 
     final newFen = fenParts.join(" ");
-
-    setState(() {
-      _fen = newFen;
-      widget.controller.value = _fen;
-    });
-  }
-
-  void _onSelection({required Piece type}) {
-    setState(() {
-      _editingPieceType = type;
-    });
-  }
-
-  void _onTrashSelection() {
-    setState(() {
-      _editingPieceType = null;
-    });
+    editingStore.setFen(newFen);
   }
 
   void _updateEnPassantSquare(List<String> fenParts, bool whiteTurn) {
@@ -240,37 +294,252 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
       }
     }
   }
+}
+
+class Options extends StatefulWidget {
+  final String initialFen;
+  final Labels labels;
+
+  const Options({
+    super.key,
+    required this.initialFen,
+    required this.labels,
+  });
+
+  @override
+  State<Options> createState() => _OptionsState();
+}
+
+class _OptionsState extends State<Options>
+    with SingleTickerProviderStateMixin, ChangeNotifier {
+  bool _whiteOO = true;
+  bool _whiteOOO = true;
+  bool _blackOO = true;
+  bool _blackOOO = true;
+
+  late TabController _tabController;
+
+  late TextEditingController _positionEditTextController;
+
+  @override
+  void initState() {
+    super.initState();
+    _positionEditTextController =
+        TextEditingController(text: widget.initialFen);
+    _tabController = TabController(vsync: this, length: 5);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    _positionEditTextController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+
+    return Column(
+      children: [
+        Observer(builder: (_) {
+          return Text(editingStore.fen);
+        }),
+        TabBar(
+          controller: _tabController,
+          tabs: const <Tab>[
+            Tab(
+              child: FaIcon(
+                FontAwesomeIcons.puzzlePiece,
+                color: Colors.orange,
+              ),
+            ),
+            Tab(
+              child: Icon(
+                FontAwesomeIcons.arrowsLeftRight,
+                color: Colors.green,
+              ),
+            ),
+            Tab(
+              child: Icon(
+                FontAwesomeIcons.fortAwesome,
+                color: Colors.blue,
+              ),
+            ),
+            Tab(
+              child: Icon(
+                FontAwesomeIcons.question,
+                color: Colors.red,
+              ),
+            ),
+            Tab(
+              child: Icon(
+                FontAwesomeIcons.bookmark,
+                color: Colors.yellow,
+              ),
+            ),
+          ],
+        ),
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Observer(builder: (_) {
+              return TabBarView(
+                controller: _tabController,
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: WhitePieces(
+                          maxWidth: double.infinity,
+                          onSelection: _onSelection,
+                        ),
+                      ),
+                      Flexible(
+                        child: BlackPieces(
+                          maxWidth: double.infinity,
+                          onSelection: _onSelection,
+                        ),
+                      ),
+                      Flexible(
+                        child: TrashAndPreview(
+                          maxWidth: double.infinity,
+                          selectedPiece: editingStore.editingPiece,
+                          onTrashSelection: _onTrashSelection,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SingleChildScrollView(
+                    child: TurnWidget(
+                      labels: widget.labels,
+                      currentFen: editingStore.fen,
+                      onTurnChanged: _onTurnChanged,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    child: CastlesWidget(
+                      labels: widget.labels,
+                      whiteOO: editingStore.fen.split(' ')[2].contains('K'),
+                      whiteOOO: editingStore.fen.split(' ')[2].contains('Q'),
+                      blackOO: editingStore.fen.split(' ')[2].contains('k'),
+                      blackOOO: editingStore.fen.split(' ')[2].contains('q'),
+                      onWhiteOOChanged: _onWhiteOOChanged,
+                      onWhiteOOOChanged: _onWhiteOOOChanged,
+                      onBlackOOChanged: _onBlackOOChanged,
+                      onBlackOOOChanged: _onBlackOOOChanged,
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        EnPassantWidget(
+                          currentFen: editingStore.fen,
+                          labels: widget.labels,
+                          onChanged: _onEnPassantChanged,
+                        ),
+                        DrawHalfMovesCountWidget(
+                          currentFen: editingStore.fen,
+                          labels: widget.labels,
+                          onSubmitted: _onHalfMoveCountSubmitted,
+                        ),
+                        MoveNumberWidget(
+                          currentFen: editingStore.fen,
+                          labels: widget.labels,
+                          onSubmitted: _onMoveNumberSubmitted,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SingleChildScrollView(
+                    child: FenControlsWidget(
+                      initialFen: widget.initialFen,
+                      currentFen: editingStore.fen,
+                      labels: widget.labels,
+                      onPositionFenSubmitted: _onPositionFenSubmitted,
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _onSelection({required Piece type}) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    editingStore.setEditingPiece(type);
+  }
+
+  void _onTrashSelection() {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    editingStore.setEditingPiece(null);
+  }
+
+  void _onPositionFenSubmitted(String position) {
+    final isValidPosition = chess.Chess.validate_fen(position)['valid'] as bool;
+    if (isValidPosition) {
+      final editingStore = GetIt.instance.get<EditingStore>();
+      editingStore.setFen(position);
+    }
+  }
 
   void _onTurnChanged(bool turn) {
-    var parts = _fen.split(' ');
+    final editingStore = GetIt.instance.get<EditingStore>();
+    var parts = editingStore.fen.split(' ');
     final newTurnStr = turn ? 'w' : 'b';
     parts[1] = newTurnStr;
 
     _updateEnPassantSquare(parts, turn);
 
-    setState(() {
-      _fen = parts.join(' ');
-      widget.controller.value = _fen;
-    });
+    editingStore.setFen(parts.join(' '));
   }
 
-  void _updateCastlesInFen() {
-    var parts = _fen.split(' ');
-    var newCastlesStr = '';
+  void _updateEnPassantSquare(List<String> fenParts, bool whiteTurn) {
+    final piecesArray = getPiecesArray(fenParts.join(' '));
+    final rank = 7 - (whiteTurn ? 4 : 3);
+    final currentEpSquareValue = fenParts[3];
+    final expectedPawn = whiteTurn ? 'p' : 'P';
+    if (currentEpSquareValue != '-') {
+      String pieceAtEpSquare;
+      final currentEpFileStr = currentEpSquareValue.charAt(0);
+      if (currentEpFileStr == 'a') {
+        pieceAtEpSquare = piecesArray[rank][0];
+      } else if (currentEpFileStr == 'b') {
+        pieceAtEpSquare = piecesArray[rank][1];
+      } else if (currentEpFileStr == 'c') {
+        pieceAtEpSquare = piecesArray[rank][2];
+      } else if (currentEpFileStr == 'd') {
+        pieceAtEpSquare = piecesArray[rank][3];
+      } else if (currentEpFileStr == 'e') {
+        pieceAtEpSquare = piecesArray[rank][4];
+      } else if (currentEpFileStr == 'f') {
+        pieceAtEpSquare = piecesArray[rank][5];
+      } else if (currentEpFileStr == 'g') {
+        pieceAtEpSquare = piecesArray[rank][6];
+      } else if (currentEpFileStr == 'h') {
+        pieceAtEpSquare = piecesArray[rank][7];
+      } else {
+        pieceAtEpSquare = '';
+      }
 
-    if (_whiteOO) newCastlesStr += 'K';
-    if (_whiteOOO) newCastlesStr += 'Q';
-    if (_blackOO) newCastlesStr += 'k';
-    if (_blackOOO) newCastlesStr += 'q';
+      if (pieceAtEpSquare == expectedPawn) {
+        String currentEpRankStr = currentEpSquareValue.charAt(1);
+        int currentEpRank = int.parse(currentEpRankStr);
+        int newEpRank = 9 - currentEpRank;
+        fenParts[3] = "$currentEpFileStr$newEpRank";
+      } else {
+        fenParts[3] = '-';
+      }
 
-    if (newCastlesStr.isEmpty) newCastlesStr = '-';
-
-    parts[2] = newCastlesStr;
-
-    setState(() {
-      _fen = parts.join(' ');
-      widget.controller.value = _fen;
-    });
+      _onEnPassantChanged(fenParts[3]);
+    }
   }
 
   void _onWhiteOOChanged(bool? value) {
@@ -309,9 +578,30 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     }
   }
 
+  void _updateCastlesInFen() {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    var parts = editingStore.fen.split(' ');
+    var newCastlesStr = '';
+
+    if (_whiteOO) newCastlesStr += 'K';
+    if (_whiteOOO) newCastlesStr += 'Q';
+    if (_blackOO) newCastlesStr += 'k';
+    if (_blackOOO) newCastlesStr += 'q';
+
+    if (newCastlesStr.isEmpty) newCastlesStr = '-';
+
+    parts[2] = newCastlesStr;
+
+    editingStore.setFen(parts.join(' '));
+  }
+
   void _onEnPassantChanged(String? value) {
+    //////////////////////////////////////
+    print("En passant : $value");
+    //////////////////////////////////////
     if (value != null) {
-      var parts = _fen.split(' ');
+      final editingStore = GetIt.instance.get<EditingStore>();
+      var parts = editingStore.fen.split(' ');
       if (value == '-') {
         parts[3] = value;
       } else {
@@ -319,104 +609,30 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
         final rankStr = whiteTurn ? '6' : '3';
         parts[3] = "$value$rankStr";
       }
-      setState(() {
-        _fen = parts.join(' ');
-        widget.controller.value = _fen;
-      });
+
+      editingStore.setFen(parts.join(' '));
     }
   }
 
   void _onHalfMoveCountSubmitted(String value) {
-    var parts = _fen.split(' ');
+    final editingStore = GetIt.instance.get<EditingStore>();
+    var parts = editingStore.fen.split(' ');
     final newCount = int.tryParse(value);
     if (newCount != null && newCount >= 0) {
       parts[4] = value;
     }
 
-    setState(() {
-      _fen = parts.join(' ');
-      widget.controller.value = _fen;
-    });
+    editingStore.setFen(parts.join(' '));
   }
 
   void _onMoveNumberSubmitted(String value) {
-    var parts = _fen.split(' ');
+    final editingStore = GetIt.instance.get<EditingStore>();
+    var parts = editingStore.fen.split(' ');
     final newCount = int.tryParse(value);
     if (newCount != null && newCount > 0) {
       parts[5] = value;
     }
 
-    setState(() {
-      _fen = parts.join(' ');
-      widget.controller.value = _fen;
-    });
-  }
-
-  void _onPositionFenSubmitted(String position) {
-    final isValidPosition = chess.Chess.validate_fen(position)['valid'] as bool;
-    if (isValidPosition) {
-      setState(() {
-        _fen = position;
-        widget.controller.value = _fen;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final content = <Widget>[
-      Column(
-        children: [
-          SizedBox(
-            width: widget.boardSize,
-            child: ChessBoard(
-              fen: _fen,
-              onSquareClicked: _onSquareClicked,
-            ),
-          ),
-          WhitePieces(
-            maxWidth: widget.boardSize,
-            onSelection: _onSelection,
-          ),
-          BlackPieces(
-            maxWidth: widget.boardSize,
-            onSelection: _onSelection,
-          ),
-          TrashAndPreview(
-            maxWidth: widget.boardSize,
-            selectedPiece: _editingPieceType,
-            onTrashSelection: _onTrashSelection,
-          ),
-        ],
-      ),
-      AdvancedOptions(
-        initialFen: _initialFen,
-        currentFen: _fen,
-        labels: widget.labels,
-        onTurnChanged: _onTurnChanged,
-        onWhiteOOChanged: _onWhiteOOChanged,
-        onWhiteOOOChanged: _onWhiteOOOChanged,
-        onBlackOOChanged: _onBlackOOChanged,
-        onBlackOOOChanged: _onBlackOOOChanged,
-        onEnPassantChanged: _onEnPassantChanged,
-        onHalfMoveCountSubmitted: _onHalfMoveCountSubmitted,
-        onMoveNumberSubmitted: _onMoveNumberSubmitted,
-        onPositionFenSubmitted: _onPositionFenSubmitted,
-      )
-    ];
-    return LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints viewportConstraints) {
-      final isPortrait =
-          viewportConstraints.maxHeight > viewportConstraints.maxWidth;
-      if (isPortrait) {
-        return Column(
-          children: content,
-        );
-      } else {
-        return Row(
-          children: content,
-        );
-      }
-    });
+    editingStore.setFen(parts.join(' '));
   }
 }

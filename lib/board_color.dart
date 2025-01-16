@@ -1,5 +1,7 @@
+import 'package:equatable/equatable.dart';
+
 /// A side of the board (white/black).
-class BoardColor {
+class BoardColor extends Equatable {
   /// Value: 0 for white, 1 for black.
   final int value;
 
@@ -12,17 +14,10 @@ class BoardColor {
   /// Black side
   static const BoardColor black = BoardColor._value(1);
 
-  /// Hash code
-  @override
-  int get hashCode => value.hashCode;
-
   /// String representation
   @override
   String toString() => (this == white) ? 'w' : 'b';
 
-  /// Equality operator
   @override
-  bool operator ==(Object other) {
-    return other.runtimeType == runtimeType && hashCode == other.hashCode;
-  }
+  List<Object?> get props => [value];
 }

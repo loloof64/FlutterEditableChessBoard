@@ -1,7 +1,9 @@
+import 'package:equatable/equatable.dart';
+
 import 'board_color.dart';
 import 'piece_type.dart';
 
-class Piece {
+class Piece extends Equatable {
   final BoardColor color;
   final PieceType type;
 
@@ -25,10 +27,12 @@ class Piece {
   String toString() => '$color$type';
 
   @override
-  bool operator ==(Object other) {
-    return other.runtimeType == runtimeType && hashCode == other.hashCode;
-  }
+  List<Object?> get props => [color, type];
 
-  @override
-  int get hashCode => Object.hash(color, type);
+  static Piece fromFen(String fen) {
+    return Piece(
+      fen.toUpperCase() == fen ? BoardColor.white : BoardColor.black,
+      PieceType.fromString(fen),
+    );
+  }
 }

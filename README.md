@@ -4,21 +4,21 @@ A chess board that is not intended to play chess, but just defined a custom ches
 
 ![Preview](https://github.com/loloof64/FlutterEditableChessBoard/blob/main/preview.png)
 
-
 With this widget, you can :
-* set value for each cell with a single click (first select the editing piece type / or the trash)
-* clear the board / set to the standard position
-* load the widget with a custom position and then reset to this initial position when needed
-* get the FEN value / set the board from a FEN value
-The board adjusts itself its layout : either portrait or landscape.
+
+- set value for each cell with a single click (first select the editing piece type / or the trash)
+- clear the board / set to the standard position
+- load the widget with a custom position and then reset to this initial position when needed
+- get the FEN value / set the board from a FEN value
+  The board adjusts itself its layout : either portrait or landscape.
 
 Also, you must define all the labels text manually.
 
 ## Getting started
 
-* Make sure you give a value to all buttons texts with an instance to the `Labels` class,
-* you must create a `PositionController` by passing the initial position to its constructor : the value of
-the position in this controller (property `currentPosition`) will be updated with the latest registered position.
+- Make sure you give a value to all buttons texts with an instance to the `Labels` class,
+- you must create a `PositionController` by passing the initial position to its constructor : the value of
+  the position in this controller (property `currentPosition`) will be updated with the latest registered position.
 
 ## Usage
 
@@ -67,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   enPassantLabel: 'En passant square :',
                   drawHalfMovesCountLabel: 'Draw half moves count : ',
                   moveNumberLabel: 'Move number : ',
-                  submitFieldLabel: 'Validate field',
+                  submitFieldLabel: 'Validate',
                   currentPositionLabel: 'Current position: ',
                   copyFenLabel: 'Copy position',
                   pasteFenLabel: 'Paste position',
@@ -109,6 +109,16 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 ```
+
+## Credits
+
+Using some images from [svgrepo](https://www.svgrepo.com/)
+
+- pieces : https://www.svgrepo.com/svg/153706/chess
+- turn : https://www.svgrepo.com/svg/500009/turn-signal
+- castle: https://www.svgrepo.com/svg/246750/castle
+- question : https://www.svgrepo.com/svg/312909/question-mark
+- clapperboard : https://www.svgrepo.com/svg/418493/cinema-clapperboard-media
 
 ## Additional information
 

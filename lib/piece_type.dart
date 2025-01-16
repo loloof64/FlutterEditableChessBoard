@@ -1,4 +1,6 @@
-class PieceType {
+import 'package:equatable/equatable.dart';
+
+class PieceType extends Equatable {
   final String name;
 
   const PieceType._value(this.name);
@@ -30,9 +32,6 @@ class PieceType {
   }
 
   @override
-  int get hashCode => name.hashCode;
-
-  @override
   String toString() => name;
 
   String toLowerCase() => name;
@@ -40,7 +39,5 @@ class PieceType {
   String toUpperCase() => name.toUpperCase();
 
   @override
-  bool operator ==(Object other) {
-    return other.runtimeType == runtimeType && hashCode == other.hashCode;
-  }
+  List<Object?> get props => [name];
 }

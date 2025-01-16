@@ -11,115 +11,6 @@ class StringHolder {
   StringHolder(this.value);
 }
 
-class AdvancedOptions extends StatefulWidget {
-  final String initialFen;
-  final String currentFen;
-  final Labels labels;
-
-  final void Function(bool value) onTurnChanged;
-  final void Function(bool?) onWhiteOOChanged;
-  final void Function(bool?) onWhiteOOOChanged;
-  final void Function(bool?) onBlackOOChanged;
-  final void Function(bool?) onBlackOOOChanged;
-  final void Function(String?) onEnPassantChanged;
-  final void Function(String) onHalfMoveCountSubmitted;
-  final void Function(String) onMoveNumberSubmitted;
-  final void Function(String) onPositionFenSubmitted;
-
-  const AdvancedOptions({
-    super.key,
-    required this.currentFen,
-    required this.initialFen,
-    required this.labels,
-    required this.onTurnChanged,
-    required this.onWhiteOOChanged,
-    required this.onWhiteOOOChanged,
-    required this.onBlackOOChanged,
-    required this.onBlackOOOChanged,
-    required this.onEnPassantChanged,
-    required this.onHalfMoveCountSubmitted,
-    required this.onMoveNumberSubmitted,
-    required this.onPositionFenSubmitted,
-  });
-
-  @override
-  State<AdvancedOptions> createState() => _AdvancedOptionsState();
-}
-
-class _AdvancedOptionsState extends State<AdvancedOptions> {
-  @override
-  Widget build(BuildContext context) {
-    final fenParts = widget.currentFen.split(' ');
-    final castlesPart = fenParts[2];
-    final whiteOO = castlesPart.contains('K');
-    final whiteOOO = castlesPart.contains('Q');
-    final blackOO = castlesPart.contains('k');
-    final blackOOO = castlesPart.contains('q');
-
-    return Flexible(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            FenControlsWidget(
-              initialFen: widget.initialFen,
-              currentFen: widget.currentFen,
-              labels: widget.labels,
-              onPositionFenSubmitted: widget.onPositionFenSubmitted,
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            TurnWidget(
-              labels: widget.labels,
-              currentFen: widget.currentFen,
-              onTurnChanged: widget.onTurnChanged,
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            CastlesWidget(
-              labels: widget.labels,
-              whiteOO: whiteOO,
-              whiteOOO: whiteOOO,
-              blackOO: blackOO,
-              blackOOO: blackOOO,
-              onWhiteOOChanged: widget.onWhiteOOChanged,
-              onWhiteOOOChanged: widget.onWhiteOOOChanged,
-              onBlackOOChanged: widget.onBlackOOChanged,
-              onBlackOOOChanged: widget.onBlackOOOChanged,
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            EnPassantWidget(
-              currentFen: widget.currentFen,
-              labels: widget.labels,
-              onChanged: widget.onEnPassantChanged,
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            DrawHalfMovesCountWidget(
-              currentFen: widget.currentFen,
-              labels: widget.labels,
-              onSubmitted: widget.onHalfMoveCountSubmitted,
-            ),
-            const Divider(
-              color: Colors.black,
-            ),
-            MoveNumberWidget(
-              currentFen: widget.currentFen,
-              labels: widget.labels,
-              onSubmitted: widget.onMoveNumberSubmitted,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class TurnWidget extends StatelessWidget {
   final Labels labels;
   final String currentFen;
@@ -351,22 +242,18 @@ class DrawHalfMovesCountWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              labels.drawHalfMovesCountLabel,
-            ),
-            Expanded(
-              child: TextField(
-                controller: _fieldController,
-              ),
-            ),
-          ],
+        Text(
+          labels.drawHalfMovesCountLabel,
+        ),
+        Expanded(
+          child: TextField(
+            controller: _fieldController,
+          ),
         ),
         ElevatedButton(
           onPressed: () => onSubmitted(_fieldController.text),
@@ -399,29 +286,25 @@ class MoveNumberWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.baseline,
-          textBaseline: TextBaseline.alphabetic,
-          children: [
-            Text(
-              labels.moveNumberLabel,
-            ),
-            Expanded(
-              child: TextField(
-                controller: _fieldController,
-              ),
-            ),
-          ],
+        Text(
+          labels.moveNumberLabel,
+        ),
+        Expanded(
+          child: TextField(
+            controller: _fieldController,
+          ),
         ),
         ElevatedButton(
           onPressed: () => onSubmitted(_fieldController.text),
           child: Text(
             labels.submitFieldLabel,
           ),
-        )
+        ),
       ],
     );
   }
@@ -433,41 +316,18 @@ class FenControlsWidget extends StatelessWidget {
   final String initialFen;
   final void Function(String) onPositionFenSubmitted;
 
-  final TextEditingController _positionFenController =
-      TextEditingController(text: '');
-
-  FenControlsWidget({
+  const FenControlsWidget({
     super.key,
     required this.labels,
     required this.currentFen,
     required this.initialFen,
     required this.onPositionFenSubmitted,
-  }) {
-    _positionFenController.text = currentFen;
-  }
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          children: [
-            Text(labels.currentPositionLabel),
-            Expanded(
-              child: TextField(
-                controller: _positionFenController,
-              ),
-            ),
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: ElevatedButton(
-            onPressed: () =>
-                onPositionFenSubmitted(_positionFenController.text),
-            child: Text(labels.submitFieldLabel),
-          ),
-        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: ElevatedButton(

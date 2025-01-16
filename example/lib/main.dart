@@ -9,7 +9,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -51,57 +50,62 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Column(
         children: [
-          SizedBox(
-            height: deviceSize.height * (isLandscape ? 0.6 : 0.78),
-            child: EditableChessBoard(
-              boardSize: isLandscape
-                  ? deviceSize.height * 0.45
-                  : deviceSize.width * 0.9,
-              controller: _controller,
-              labels: Labels(
-                playerTurnLabel: 'Player turn :',
-                whitePlayerLabel: 'White',
-                blackPlayerLabel: 'Black',
-                availableCastlesLabel: 'Available castles :',
-                whiteOOLabel: 'White O-O',
-                whiteOOOLabel: 'White O-O-O',
-                blackOOLabel: 'Black O-O',
-                blackOOOLabel: 'Black O-O-O',
-                enPassantLabel: 'En passant square :',
-                drawHalfMovesCountLabel: 'Draw half moves count : ',
-                moveNumberLabel: 'Move number : ',
-                submitFieldLabel: 'Validate field',
-                currentPositionLabel: 'Current position: ',
-                copyFenLabel: 'Copy position',
-                pasteFenLabel: 'Paste position',
-                resetPosition: 'Reset position',
-                standardPosition: 'Standard position',
-                erasePosition: 'Erase position',
+          Expanded(
+            child: SizedBox(
+              height: deviceSize.height * (isLandscape ? 0.6 : 0.6),
+              child: EditableChessBoard(
+                boardSize: isLandscape
+                    ? deviceSize.height * 0.45
+                    : deviceSize.width * 0.9,
+                controller: _controller,
+                labels: Labels(
+                  playerTurnLabel: 'Player turn :',
+                  whitePlayerLabel: 'White',
+                  blackPlayerLabel: 'Black',
+                  availableCastlesLabel: 'Available castles :',
+                  whiteOOLabel: 'White O-O',
+                  whiteOOOLabel: 'White O-O-O',
+                  blackOOLabel: 'Black O-O',
+                  blackOOOLabel: 'Black O-O-O',
+                  enPassantLabel: 'En passant square :',
+                  drawHalfMovesCountLabel: 'Draw half moves count : ',
+                  moveNumberLabel: 'Move number : ',
+                  submitFieldLabel: 'Validate',
+                  currentPositionLabel: 'Current position: ',
+                  copyFenLabel: 'Copy position',
+                  pasteFenLabel: 'Paste position',
+                  resetPosition: 'Reset position',
+                  standardPosition: 'Standard position',
+                  erasePosition: 'Erase position',
+                ),
               ),
             ),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  final isEmptyBoard =
-                      _controller.currentPosition.split(' ')[0] ==
-                          "8/8/8/8/8/8/8/8";
-                  final isValidPosition = !isEmptyBoard &&
-                      chess.Chess.validate_fen(
-                              _controller.currentPosition)['valid'] ==
-                          true;
-                  final message =
-                      isValidPosition ? "Valid position" : "Illegal position !";
-                  final snackBar = SnackBar(
-                    content: Text(message),
-                  );
-                  ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                },
-                child: const Text('Validate position'),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    final isEmptyBoard =
+                        _controller.position.split(' ')[0] == "8/8/8/8/8/8/8/8";
+                    final isValidPosition = !isEmptyBoard &&
+                        chess.Chess.validate_fen(
+                                _controller.position)['valid'] ==
+                            true;
+                    final message = isValidPosition
+                        ? "Valid position"
+                        : "Illegal position !";
+                    final snackBar = SnackBar(
+                      content: Text(message),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  },
+                  child: const Text('Validate position'),
+                ),
+              ],
+            ),
           )
         ],
       ),
