@@ -16,21 +16,49 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Home page'),
+      home: const HomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('Editable chessboard demo'),
+        ),
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const EditorPage(
+                    title: 'Editor page',
+                  ),
+                ),
+              );
+            },
+            child: const Text(
+              "Enter editor",
+            ),
+          ),
+        ));
+  }
+}
+
+class EditorPage extends StatefulWidget {
+  const EditorPage({super.key, required this.title});
 
   final String title;
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<EditorPage> createState() => _EditorPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _EditorPageState extends State<EditorPage> {
   final _controller = PositionController(
       'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2');
 

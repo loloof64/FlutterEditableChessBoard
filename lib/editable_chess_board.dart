@@ -142,8 +142,8 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 
   @override
   void dispose() {
-    GetIt.instance.unregister<EditingStore>();
     super.dispose();
+    GetIt.instance.unregister<EditingStore>();
   }
 
   @override
@@ -310,8 +310,7 @@ class Options extends StatefulWidget {
   State<Options> createState() => _OptionsState();
 }
 
-class _OptionsState extends State<Options>
-    with SingleTickerProviderStateMixin, ChangeNotifier {
+class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
   bool _whiteOO = true;
   bool _whiteOOO = true;
   bool _blackOO = true;
@@ -596,9 +595,6 @@ class _OptionsState extends State<Options>
   }
 
   void _onEnPassantChanged(String? value) {
-    //////////////////////////////////////
-    print("En passant : $value");
-    //////////////////////////////////////
     if (value != null) {
       final editingStore = GetIt.instance.get<EditingStore>();
       var parts = editingStore.fen.split(' ');

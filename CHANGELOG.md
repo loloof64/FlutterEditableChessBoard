@@ -1,3 +1,7 @@
+## 0.2.1
+
+- Corrected bug preventing us to exit and return editor page.
+
 ## 0.2.0
 
 - Made the component responsive.
