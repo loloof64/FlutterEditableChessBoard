@@ -83,8 +83,8 @@ class _EditorPageState extends State<EditorPage> {
               height: deviceSize.height * (isLandscape ? 0.6 : 0.6),
               child: EditableChessBoard(
                 boardSize: isLandscape
-                    ? deviceSize.height * 0.45
-                    : deviceSize.width * 0.9,
+                    ? deviceSize.width * 0.45
+                    : deviceSize.height * 0.4,
                 controller: _controller,
                 labels: Labels(
                   playerTurnLabel: 'Player turn :',
