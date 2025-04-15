@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Added an option to show advanced options or the just the pieces buttons (and trash can).
+
 ## 0.2.1
 
 - Corrected bug preventing us to exit and return editor page.

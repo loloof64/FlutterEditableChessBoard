@@ -116,12 +116,16 @@ class EditableChessBoard extends StatefulWidget {
   /// A controller for the position value of this editable chess board.
   final PositionController controller;
 
+  /// Whether to show the advanced options.
+  final bool showAdvancedOptions;
+
   /// Constructor.
   const EditableChessBoard({
     Key? key,
     required this.boardSize,
     required this.labels,
     required this.controller,
+    required this.showAdvancedOptions,
   }) : super(key: key);
 
   @override
@@ -170,22 +174,25 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
           ),
         ),
       ),
-      Expanded(
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: ReactionBuilder(
-            builder: (context) {
-              return reaction((_) => editingStore.fen, (newFen) {
-                widget.controller.position = newFen;
-              });
-            },
-            child: Options(
-              initialFen: _initialFen,
-              labels: widget.labels,
+      if (widget.showAdvancedOptions)
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: ReactionBuilder(
+              builder: (context) {
+                return reaction((_) => editingStore.fen, (newFen) {
+                  widget.controller.position = newFen;
+                });
+              },
+              child: Options(
+                initialFen: _initialFen,
+                labels: widget.labels,
+              ),
             ),
           ),
-        ),
-      )
+        )
+      else
+        const Expanded(child: PieceEditorWidget())
     ];
 
     final isLandscape =
@@ -296,6 +303,54 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   }
 }
 
+class PieceEditorWidget extends StatefulWidget {
+  const PieceEditorWidget({super.key});
+
+  @override
+  State<PieceEditorWidget> createState() => _PieceEditorWidgetState();
+}
+
+class _PieceEditorWidgetState extends State<PieceEditorWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: WhitePieces(
+            maxWidth: double.infinity,
+            onSelection: ({required Piece type}) {
+              _onSelection(type: type);
+              setState(() {});
+            },
+          ),
+        ),
+        Flexible(
+          child: BlackPieces(
+            maxWidth: double.infinity,
+            onSelection: ({required Piece type}) {
+              _onSelection(type: type);
+              setState(() {});
+            },
+          ),
+        ),
+        Flexible(
+          child: TrashAndPreview(
+              maxWidth: double.infinity,
+              selectedPiece: editingStore.editingPiece,
+              onTrashSelection: () {
+                _onTrashSelection();
+                setState(() {});
+              }),
+        ),
+      ],
+    );
+  }
+}
+
 class Options extends StatefulWidget {
   final String initialFen;
   final Labels labels;
@@ -390,13 +445,13 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Flexible(
+                      const Flexible(
                         child: WhitePieces(
                           maxWidth: double.infinity,
                           onSelection: _onSelection,
                         ),
                       ),
-                      Flexible(
+                      const Flexible(
                         child: BlackPieces(
                           maxWidth: double.infinity,
                           onSelection: _onSelection,
@@ -469,16 +524,6 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
         ),
       ],
     );
-  }
-
-  void _onSelection({required Piece type}) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    editingStore.setEditingPiece(type);
-  }
-
-  void _onTrashSelection() {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    editingStore.setEditingPiece(null);
   }
 
   void _onPositionFenSubmitted(String position) {
@@ -631,4 +676,14 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
 
     editingStore.setFen(parts.join(' '));
   }
+}
+
+void _onSelection({required Piece type}) {
+  final editingStore = GetIt.instance.get<EditingStore>();
+  editingStore.setEditingPiece(type);
+}
+
+void _onTrashSelection() {
+  final editingStore = GetIt.instance.get<EditingStore>();
+  editingStore.setEditingPiece(null);
 }
