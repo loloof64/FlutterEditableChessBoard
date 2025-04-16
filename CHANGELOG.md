@@ -1,3 +1,7 @@
+## 0.5.2
+
+- Removed dependency to GetIt, as its purpose is rather for Global state.
+
 ## 0.5.1
 
 - Better GetIt singleton handling.

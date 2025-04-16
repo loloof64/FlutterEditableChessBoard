@@ -2,7 +2,6 @@ library editable_chess_board;
 
 import 'package:editable_chess_board/store/editing_store.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:mobx/mobx.dart';
 import 'package:super_string/super_string.dart';
 import 'package:chess/chess.dart' as chess;
@@ -134,31 +133,22 @@ class EditableChessBoard extends StatefulWidget {
 
 class _EditableChessBoardState extends State<EditableChessBoard> {
   late String _initialFen;
+  final _editingStore = EditingStore();
 
   @override
   void initState() {
     super.initState();
-    if (!GetIt.instance.isRegistered<EditingStore>()) {
-      GetIt.instance.registerLazySingleton<EditingStore>(() => EditingStore());
-    }
-    final editingStore = GetIt.instance.get<EditingStore>();
     _initialFen = widget.controller.position;
-    editingStore.setFen(_initialFen);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    GetIt.instance.unregister<EditingStore>();
+    _editingStore.setFen(_initialFen);
   }
 
   @override
   Widget build(BuildContext context) {
-    final editingStore = GetIt.instance.get<EditingStore>();
     final content = <Widget>[
       Padding(
           padding: const EdgeInsets.all(10.0),
           child: ChessBoardGroup(
+            editingStore: _editingStore,
             boardSize: widget.boardSize,
             onReaction: (newFen) {
               widget.controller.position = newFen;
@@ -171,11 +161,12 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
             padding: const EdgeInsets.all(10.0),
             child: ReactionBuilder(
               builder: (context) {
-                return reaction((_) => editingStore.fen, (newFen) {
+                return reaction((_) => _editingStore.fen, (newFen) {
                   widget.controller.position = newFen;
                 });
               },
               child: Options(
+                editingStore: _editingStore,
                 initialFen: _initialFen,
                 labels: widget.labels,
               ),
@@ -205,19 +196,16 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   }
 
   void _onSquareClicked(int file, int rank) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-
     _updateFenPiece(
       file: file,
       rank: rank,
-      pieceType: editingStore.editingPiece,
+      pieceType: _editingStore.editingPiece,
     );
   }
 
   void _updateFenPiece(
       {required int file, required int rank, required Piece? pieceType}) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    final fen = editingStore.fen;
+    final fen = _editingStore.fen;
     var fenParts = fen.split(' ');
     var piecesArray = getPiecesArray(fen);
     piecesArray[7 - rank][file] = pieceType != null
@@ -254,7 +242,7 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     _updateEnPassantSquare(fenParts, fenParts[1] == 'w');
 
     final newFen = fenParts.join(" ");
-    editingStore.setFen(newFen);
+    _editingStore.setFen(newFen);
   }
 
   void _updateEnPassantSquare(List<String> fenParts, bool whiteTurn) {
@@ -298,7 +286,8 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
 }
 
 class PieceEditorWidget extends StatefulWidget {
-  const PieceEditorWidget({super.key});
+  final EditingStore editingStore;
+  const PieceEditorWidget({super.key, required this.editingStore});
 
   @override
   State<PieceEditorWidget> createState() => _PieceEditorWidgetState();
@@ -311,21 +300,18 @@ class _PieceEditorWidgetState extends State<PieceEditorWidget> {
   @override
   void initState() {
     super.initState();
-    final editingStore = GetIt.instance.get<EditingStore>();
-    _selectedPiece = editingStore.editingPiece;
+    _selectedPiece = widget.editingStore.editingPiece;
   }
 
   void _onSelection({required Piece type}) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    editingStore.setEditingPiece(type);
+    widget.editingStore.setEditingPiece(type);
     setState(() {
       _selectedPiece = type;
     });
   }
 
   void _onTrashSelection() {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    editingStore.setEditingPiece(null);
+    widget.editingStore.setEditingPiece(null);
     setState(() {
       _selectedPiece = null;
     });
@@ -351,11 +337,13 @@ class _PieceEditorWidgetState extends State<PieceEditorWidget> {
 class Options extends StatefulWidget {
   final String initialFen;
   final Labels labels;
+  final EditingStore editingStore;
 
   const Options({
     super.key,
     required this.initialFen,
     required this.labels,
+    required this.editingStore,
   });
 
   @override
@@ -389,12 +377,10 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-
     return Column(
       children: [
         Observer(builder: (_) {
-          return Text(editingStore.fen);
+          return Text(widget.editingStore.fen);
         }),
         TabBar(
           controller: _tabController,
@@ -435,17 +421,21 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
                   SingleChildScrollView(
                     child: TurnWidget(
                       labels: widget.labels,
-                      currentFen: editingStore.fen,
+                      currentFen: widget.editingStore.fen,
                       onTurnChanged: _onTurnChanged,
                     ),
                   ),
                   SingleChildScrollView(
                     child: CastlesWidget(
                       labels: widget.labels,
-                      whiteOO: editingStore.fen.split(' ')[2].contains('K'),
-                      whiteOOO: editingStore.fen.split(' ')[2].contains('Q'),
-                      blackOO: editingStore.fen.split(' ')[2].contains('k'),
-                      blackOOO: editingStore.fen.split(' ')[2].contains('q'),
+                      whiteOO:
+                          widget.editingStore.fen.split(' ')[2].contains('K'),
+                      whiteOOO:
+                          widget.editingStore.fen.split(' ')[2].contains('Q'),
+                      blackOO:
+                          widget.editingStore.fen.split(' ')[2].contains('k'),
+                      blackOOO:
+                          widget.editingStore.fen.split(' ')[2].contains('q'),
                       onWhiteOOChanged: _onWhiteOOChanged,
                       onWhiteOOOChanged: _onWhiteOOOChanged,
                       onBlackOOChanged: _onBlackOOChanged,
@@ -458,17 +448,17 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         EnPassantWidget(
-                          currentFen: editingStore.fen,
+                          currentFen: widget.editingStore.fen,
                           labels: widget.labels,
                           onChanged: _onEnPassantChanged,
                         ),
                         DrawHalfMovesCountWidget(
-                          currentFen: editingStore.fen,
+                          currentFen: widget.editingStore.fen,
                           labels: widget.labels,
                           onSubmitted: _onHalfMoveCountSubmitted,
                         ),
                         MoveNumberWidget(
-                          currentFen: editingStore.fen,
+                          currentFen: widget.editingStore.fen,
                           labels: widget.labels,
                           onSubmitted: _onMoveNumberSubmitted,
                         ),
@@ -478,7 +468,7 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
                   SingleChildScrollView(
                     child: FenControlsWidget(
                       initialFen: widget.initialFen,
-                      currentFen: editingStore.fen,
+                      currentFen: widget.editingStore.fen,
                       labels: widget.labels,
                       onPositionFenSubmitted: _onPositionFenSubmitted,
                     ),
@@ -495,20 +485,18 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
   void _onPositionFenSubmitted(String position) {
     final isValidPosition = chess.Chess.validate_fen(position)['valid'] as bool;
     if (isValidPosition) {
-      final editingStore = GetIt.instance.get<EditingStore>();
-      editingStore.setFen(position);
+      widget.editingStore.setFen(position);
     }
   }
 
   void _onTurnChanged(bool turn) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    var parts = editingStore.fen.split(' ');
+    var parts = widget.editingStore.fen.split(' ');
     final newTurnStr = turn ? 'w' : 'b';
     parts[1] = newTurnStr;
 
     _updateEnPassantSquare(parts, turn);
 
-    editingStore.setFen(parts.join(' '));
+    widget.editingStore.setFen(parts.join(' '));
   }
 
   void _updateEnPassantSquare(List<String> fenParts, bool whiteTurn) {
@@ -589,8 +577,7 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
   }
 
   void _updateCastlesInFen() {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    var parts = editingStore.fen.split(' ');
+    var parts = widget.editingStore.fen.split(' ');
     var newCastlesStr = '';
 
     if (_whiteOO) newCastlesStr += 'K';
@@ -602,13 +589,12 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
 
     parts[2] = newCastlesStr;
 
-    editingStore.setFen(parts.join(' '));
+    widget.editingStore.setFen(parts.join(' '));
   }
 
   void _onEnPassantChanged(String? value) {
     if (value != null) {
-      final editingStore = GetIt.instance.get<EditingStore>();
-      var parts = editingStore.fen.split(' ');
+      var parts = widget.editingStore.fen.split(' ');
       if (value == '-') {
         parts[3] = value;
       } else {
@@ -617,48 +603,47 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
         parts[3] = "$value$rankStr";
       }
 
-      editingStore.setFen(parts.join(' '));
+      widget.editingStore.setFen(parts.join(' '));
     }
   }
 
   void _onHalfMoveCountSubmitted(String value) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    var parts = editingStore.fen.split(' ');
+    var parts = widget.editingStore.fen.split(' ');
     final newCount = int.tryParse(value);
     if (newCount != null && newCount >= 0) {
       parts[4] = value;
     }
 
-    editingStore.setFen(parts.join(' '));
+    widget.editingStore.setFen(parts.join(' '));
   }
 
   void _onMoveNumberSubmitted(String value) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    var parts = editingStore.fen.split(' ');
+    var parts = widget.editingStore.fen.split(' ');
     final newCount = int.tryParse(value);
     if (newCount != null && newCount > 0) {
       parts[5] = value;
     }
 
-    editingStore.setFen(parts.join(' '));
+    widget.editingStore.setFen(parts.join(' '));
   }
 }
 
 class ChessBoardGroup extends StatelessWidget {
   final double boardSize;
+  final EditingStore editingStore;
   final void Function(String) onReaction;
   final void Function(int, int) onSquareClicked;
 
   const ChessBoardGroup({
     super.key,
     required this.boardSize,
+    required this.editingStore,
     required this.onReaction,
     required this.onSquareClicked,
   });
 
   @override
   Widget build(BuildContext context) {
-    final editingStore = GetIt.instance.get<EditingStore>();
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -681,7 +666,9 @@ class ChessBoardGroup extends StatelessWidget {
             }),
           ),
         ),
-        const PieceEditorWidget(),
+        PieceEditorWidget(
+          editingStore: editingStore,
+        ),
       ],
     );
   }

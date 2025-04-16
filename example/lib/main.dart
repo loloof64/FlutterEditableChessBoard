@@ -86,7 +86,7 @@ class _EditorPageState extends State<EditorPage> {
                     ? deviceSize.width * 0.4
                     : deviceSize.height * 0.4,
                 controller: _controller,
-                showAdvancedOptions: false,
+                showAdvancedOptions: true,
                 labels: Labels(
                   playerTurnLabel: 'Player turn :',
                   whitePlayerLabel: 'White',
