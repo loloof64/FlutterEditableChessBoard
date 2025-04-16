@@ -1,3 +1,7 @@
+## 0.5.1
+
+- Better GetIt singleton handling.
+
 ## 0.5.0
 
 - Pieces selection zone is always visible, and removed selection tab from advanced options.

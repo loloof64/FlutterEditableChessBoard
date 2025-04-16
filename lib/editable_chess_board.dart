@@ -138,7 +138,9 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
   @override
   void initState() {
     super.initState();
-    GetIt.instance.registerSingleton<EditingStore>(EditingStore());
+    if (!GetIt.instance.isRegistered<EditingStore>()) {
+      GetIt.instance.registerLazySingleton<EditingStore>(() => EditingStore());
+    }
     final editingStore = GetIt.instance.get<EditingStore>();
     _initialFen = widget.controller.position;
     editingStore.setFen(_initialFen);
