@@ -53,8 +53,11 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(
               height: 600.0,
               child: EditableChessBoard(
-                boardSize: 400.0,
+                boardSize: isLandscape
+                    ? deviceSize.width * 0.45
+                    : deviceSize.height * 0.4,
                 controller: _controller,
+                showAdvancedOptions: false,
                 labels: Labels(
                   playerTurnLabel: 'Player turn :',
                   whitePlayerLabel: 'White',

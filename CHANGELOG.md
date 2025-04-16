@@ -1,3 +1,7 @@
+## 0.4.0
+
+- Improve the piece selection zone so that it takes less place.
+
 ## 0.3.0
 
 - Added an option to show advanced options or the just the pieces buttons (and trash can).

@@ -311,43 +311,46 @@ class PieceEditorWidget extends StatefulWidget {
 }
 
 class _PieceEditorWidgetState extends State<PieceEditorWidget> {
+  bool _whitePieces = true;
+  Piece? _selectedPiece;
+
+  @override
+  void initState() {
+    super.initState();
+    final editingStore = GetIt.instance.get<EditingStore>();
+    _selectedPiece = editingStore.editingPiece;
+  }
+
+  void _onSelection({required Piece type}) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    editingStore.setEditingPiece(type);
+    setState(() {
+      _selectedPiece = type;
+    });
+  }
+
+  void _onTrashSelection() {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    editingStore.setEditingPiece(null);
+    setState(() {
+      _selectedPiece = null;
+    });
+  }
+
+  void _onColorToggle() {
+    setState(() {
+      _whitePieces = !_whitePieces;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Flexible(
-          child: WhitePieces(
-            maxWidth: double.infinity,
-            onSelection: ({required Piece type}) {
-              _onSelection(type: type);
-              setState(() {});
-            },
-          ),
-        ),
-        Flexible(
-          child: BlackPieces(
-            maxWidth: double.infinity,
-            onSelection: ({required Piece type}) {
-              _onSelection(type: type);
-              setState(() {});
-            },
-          ),
-        ),
-        Flexible(
-          child: TrashAndPreview(
-              maxWidth: double.infinity,
-              selectedPiece: editingStore.editingPiece,
-              onTrashSelection: () {
-                _onTrashSelection();
-                setState(() {});
-              }),
-        ),
-      ],
-    );
+    return SelectionZone(
+        whitePieces: _whitePieces,
+        selectedPiece: _selectedPiece,
+        onSelection: _onSelection,
+        onTrashSelection: _onTrashSelection,
+        onColorToggle: _onColorToggle);
   }
 }
 
@@ -371,9 +374,36 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
   bool _blackOO = true;
   bool _blackOOO = true;
 
+  bool _whitePieces = true;
+  Piece? _selectedPiece;
+
   late TabController _tabController;
 
   late TextEditingController _positionEditTextController;
+
+  
+
+  void _onSelection({required Piece type}) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    editingStore.setEditingPiece(type);
+    setState(() {
+      _selectedPiece = type;
+    });
+  }
+
+  void _onTrashSelection() {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    editingStore.setEditingPiece(null);
+    setState(() {
+      _selectedPiece = null;
+    });
+  }
+
+  void _onColorToggle() {
+    setState(() {
+      _whitePieces = !_whitePieces;
+    });
+  }
 
   @override
   void initState() {
@@ -381,6 +411,8 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
     _positionEditTextController =
         TextEditingController(text: widget.initialFen);
     _tabController = TabController(vsync: this, length: 5);
+    final editingStore = GetIt.instance.get<EditingStore>();
+    _selectedPiece = editingStore.editingPiece;
   }
 
   @override
@@ -441,30 +473,12 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
               return TabBarView(
                 controller: _tabController,
                 children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Flexible(
-                        child: WhitePieces(
-                          maxWidth: double.infinity,
-                          onSelection: _onSelection,
-                        ),
-                      ),
-                      const Flexible(
-                        child: BlackPieces(
-                          maxWidth: double.infinity,
-                          onSelection: _onSelection,
-                        ),
-                      ),
-                      Flexible(
-                        child: TrashAndPreview(
-                          maxWidth: double.infinity,
-                          selectedPiece: editingStore.editingPiece,
-                          onTrashSelection: _onTrashSelection,
-                        ),
-                      ),
-                    ],
+                  SelectionZone(
+                    whitePieces: _whitePieces,
+                    selectedPiece: _selectedPiece,
+                    onSelection: _onSelection,
+                    onTrashSelection: _onTrashSelection,
+                    onColorToggle: _onColorToggle,
                   ),
                   SingleChildScrollView(
                     child: TurnWidget(
@@ -676,14 +690,4 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
 
     editingStore.setFen(parts.join(' '));
   }
-}
-
-void _onSelection({required Piece type}) {
-  final editingStore = GetIt.instance.get<EditingStore>();
-  editingStore.setEditingPiece(type);
-}
-
-void _onTrashSelection() {
-  final editingStore = GetIt.instance.get<EditingStore>();
-  editingStore.setEditingPiece(null);
 }

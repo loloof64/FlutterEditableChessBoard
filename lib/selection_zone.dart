@@ -2,249 +2,128 @@ import 'package:flutter/material.dart';
 
 import 'package:editable_chess_board/piece_type.dart';
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'piece.dart';
 import 'board_color.dart';
 
-class WhitePieces extends StatelessWidget {
-  final double maxWidth;
-  final void Function({required Piece type}) onSelection;
-
-  const WhitePieces(
-      {super.key, required this.maxWidth, required this.onSelection});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(color: Colors.grey),
-      child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        final commonSize = (viewportConstraints.maxWidth < maxWidth
-                ? viewportConstraints.maxWidth
-                : maxWidth) *
-            0.1;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            InkWell(
-              child: WhitePawn(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.white,
-                  PieceType.pawn,
-                ),
-              ),
-            ),
-            InkWell(
-              child: WhiteKnight(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.white,
-                  PieceType.knight,
-                ),
-              ),
-            ),
-            InkWell(
-              child: WhiteBishop(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.white,
-                  PieceType.bishop,
-                ),
-              ),
-            ),
-            InkWell(
-              child: WhiteRook(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.white,
-                  PieceType.rook,
-                ),
-              ),
-            ),
-            InkWell(
-              child: WhiteQueen(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.white,
-                  PieceType.queen,
-                ),
-              ),
-            ),
-            InkWell(
-              child: WhiteKing(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.white,
-                  PieceType.king,
-                ),
-              ),
-            )
-          ],
-        );
-      }),
-    );
-  }
-}
-
-class BlackPieces extends StatelessWidget {
-  final double maxWidth;
-  final void Function({required Piece type}) onSelection;
-
-  const BlackPieces(
-      {super.key, required this.maxWidth, required this.onSelection});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(color: Colors.grey),
-      child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        final commonSize = (viewportConstraints.maxWidth < maxWidth
-                ? viewportConstraints.maxWidth
-                : maxWidth) *
-            0.1;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: <Widget>[
-            InkWell(
-              child: BlackPawn(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.black,
-                  PieceType.pawn,
-                ),
-              ),
-            ),
-            InkWell(
-              child: BlackKnight(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.black,
-                  PieceType.knight,
-                ),
-              ),
-            ),
-            InkWell(
-              child: BlackBishop(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.black,
-                  PieceType.bishop,
-                ),
-              ),
-            ),
-            InkWell(
-              child: BlackRook(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.black,
-                  PieceType.rook,
-                ),
-              ),
-            ),
-            InkWell(
-              child: BlackQueen(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.black,
-                  PieceType.queen,
-                ),
-              ),
-            ),
-            InkWell(
-              child: BlackKing(
-                size: commonSize,
-              ),
-              onTap: () => onSelection(
-                type: const Piece(
-                  BoardColor.black,
-                  PieceType.king,
-                ),
-              ),
-            )
-          ],
-        );
-      }),
-    );
-  }
-}
-
-class TrashAndPreview extends StatelessWidget {
-  final double maxWidth;
+class SelectionZone extends StatelessWidget {
+  final bool whitePieces;
   final Piece? selectedPiece;
+  final void Function({required Piece type}) onSelection;
   final void Function() onTrashSelection;
+  final void Function() onColorToggle;
 
-  const TrashAndPreview({
+  const SelectionZone({
     super.key,
-    required this.maxWidth,
+    required this.whitePieces,
     required this.selectedPiece,
+    required this.onSelection,
     required this.onTrashSelection,
+    required this.onColorToggle,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey,
-      child: LayoutBuilder(
-          builder: (BuildContext context, BoxConstraints viewportConstraints) {
-        final commonSize = (viewportConstraints.maxWidth < maxWidth
-                ? viewportConstraints.maxWidth
-                : maxWidth) *
-            0.1;
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              width: commonSize,
-              height: commonSize,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  width: 2,
-                  color: Colors.black,
+    return LayoutBuilder(builder: (context, constraints) {
+      final totalWidth =
+          constraints.maxWidth > 500 ? 500 : constraints.maxWidth;
+      final singlePieceWidth = totalWidth * 0.06;
+      return Container(
+        color: Colors.blueGrey.shade700,
+        child: Row(
+            spacing: 8,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                onTap: onColorToggle,
+                child: ColorToggler(
+                  whitePiecesSelected: whitePieces,
+                  commonSize: singlePieceWidth,
                 ),
               ),
-              child: PiecePreview(
+              PiecePreview(
                 piece: selectedPiece,
-                size: commonSize,
+                size: singlePieceWidth,
               ),
-            ),
-            InkWell(
-              onTap: onTrashSelection,
-              child: Icon(
-                Icons.delete,
-                size: commonSize,
-                color: Colors.red,
+              InkWell(
+                onTap: () => onSelection(
+                  type: Piece(
+                    whitePieces ? BoardColor.white : BoardColor.black,
+                    PieceType.pawn,
+                  ),
+                ),
+                child: whitePieces
+                    ? WhitePawn(size: singlePieceWidth)
+                    : BlackPawn(size: singlePieceWidth),
               ),
-            ),
-          ],
-        );
-      }),
-    );
+              InkWell(
+                onTap: () => onSelection(
+                  type: Piece(
+                    whitePieces ? BoardColor.white : BoardColor.black,
+                    PieceType.knight,
+                  ),
+                ),
+                child: whitePieces
+                    ? WhiteKnight(size: singlePieceWidth)
+                    : BlackKnight(size: singlePieceWidth),
+              ),
+              InkWell(
+                onTap: () => onSelection(
+                  type: Piece(
+                    whitePieces ? BoardColor.white : BoardColor.black,
+                    PieceType.bishop,
+                  ),
+                ),
+                child: whitePieces
+                    ? WhiteBishop(size: singlePieceWidth)
+                    : BlackBishop(size: singlePieceWidth),
+              ),
+              InkWell(
+                onTap: () => onSelection(
+                  type: Piece(
+                    whitePieces ? BoardColor.white : BoardColor.black,
+                    PieceType.rook,
+                  ),
+                ),
+                child: whitePieces
+                    ? WhiteRook(size: singlePieceWidth)
+                    : BlackRook(size: singlePieceWidth),
+              ),
+              InkWell(
+                onTap: () => onSelection(
+                  type: Piece(
+                    whitePieces ? BoardColor.white : BoardColor.black,
+                    PieceType.queen,
+                  ),
+                ),
+                child: whitePieces
+                    ? WhiteQueen(size: singlePieceWidth)
+                    : BlackQueen(size: singlePieceWidth),
+              ),
+              InkWell(
+                onTap: () => onSelection(
+                  type: Piece(
+                    whitePieces ? BoardColor.white : BoardColor.black,
+                    PieceType.king,
+                  ),
+                ),
+                child: whitePieces
+                    ? WhiteKing(size: singlePieceWidth)
+                    : BlackKing(size: singlePieceWidth),
+              ),
+              InkWell(
+                onTap: onTrashSelection,
+                child: Icon(
+                  Icons.delete,
+                  size: singlePieceWidth,
+                  color: Colors.red,
+                ),
+              ),
+            ]),
+      );
+    });
   }
 }
 
@@ -262,7 +141,14 @@ class PiecePreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final pieceWidget = buildPiece(piece, size);
 
-    return pieceWidget;
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(width: 2, color: Colors.black),
+      ),
+      width: size * 0.9,
+      height: size * 0.9,
+      child: pieceWidget,
+    );
   }
 
   Widget buildPiece(Piece? piece, double size) {
@@ -291,7 +177,40 @@ class PiecePreview extends StatelessWidget {
     } else if (piece == Piece.blackPawn) {
       return BlackPawn(size: size);
     } else {
-      return const SizedBox();
+      return Center(
+        child: FaIcon(
+          FontAwesomeIcons.trash,
+          size: size * 0.7,
+          color: Colors.red,
+        ),
+      );
     }
+  }
+}
+
+class ColorToggler extends StatelessWidget {
+  final bool whitePiecesSelected;
+  final double commonSize;
+
+  const ColorToggler({
+    super.key,
+    required this.whitePiecesSelected,
+    required this.commonSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: commonSize,
+      height: commonSize,
+      color: whitePiecesSelected ? Colors.black : Colors.white,
+      child: Center(
+        child: FaIcon(
+          FontAwesomeIcons.arrowsUpDown,
+          size: commonSize * 0.7,
+          color: whitePiecesSelected ? Colors.white : Colors.black,
+        ),
+      ),
+    );
   }
 }
