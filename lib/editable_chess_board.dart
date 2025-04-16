@@ -155,25 +155,14 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
     final editingStore = GetIt.instance.get<EditingStore>();
     final content = <Widget>[
       Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: SizedBox(
-          width: widget.boardSize,
-          height: widget.boardSize,
-          child: ReactionBuilder(
-            builder: (context) {
-              return reaction((_) => editingStore.fen, (newFen) {
-                widget.controller.position = newFen;
-              });
+          padding: const EdgeInsets.all(10.0),
+          child: ChessBoardGroup(
+            boardSize: widget.boardSize,
+            onReaction: (newFen) {
+              widget.controller.position = newFen;
             },
-            child: Observer(builder: (_) {
-              return ChessBoard(
-                fen: editingStore.fen,
-                onSquareClicked: _onSquareClicked,
-              );
-            }),
-          ),
-        ),
-      ),
+            onSquareClicked: _onSquareClicked,
+          )),
       if (widget.showAdvancedOptions)
         Expanded(
           child: Padding(
@@ -191,23 +180,26 @@ class _EditableChessBoardState extends State<EditableChessBoard> {
             ),
           ),
         )
-      else
-        const Expanded(child: PieceEditorWidget())
     ];
 
     final isLandscape =
         MediaQuery.of(context).orientation == Orientation.landscape;
+
+    final rowContent = Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: content,
+    );
+
+    final columnContent = Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: content,
+    );
+
     return isLandscape
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: content,
-          )
-        : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: content,
-          );
+        ? (widget.showAdvancedOptions ? rowContent : columnContent)
+        : columnContent;
   }
 
   void _onSquareClicked(int file, int rank) {
@@ -374,36 +366,9 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
   bool _blackOO = true;
   bool _blackOOO = true;
 
-  bool _whitePieces = true;
-  Piece? _selectedPiece;
-
   late TabController _tabController;
 
   late TextEditingController _positionEditTextController;
-
-  
-
-  void _onSelection({required Piece type}) {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    editingStore.setEditingPiece(type);
-    setState(() {
-      _selectedPiece = type;
-    });
-  }
-
-  void _onTrashSelection() {
-    final editingStore = GetIt.instance.get<EditingStore>();
-    editingStore.setEditingPiece(null);
-    setState(() {
-      _selectedPiece = null;
-    });
-  }
-
-  void _onColorToggle() {
-    setState(() {
-      _whitePieces = !_whitePieces;
-    });
-  }
 
   @override
   void initState() {
@@ -411,8 +376,6 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
     _positionEditTextController =
         TextEditingController(text: widget.initialFen);
     _tabController = TabController(vsync: this, length: 5);
-    final editingStore = GetIt.instance.get<EditingStore>();
-    _selectedPiece = editingStore.editingPiece;
   }
 
   @override
@@ -434,12 +397,6 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
         TabBar(
           controller: _tabController,
           tabs: const <Tab>[
-            Tab(
-              child: FaIcon(
-                FontAwesomeIcons.puzzlePiece,
-                color: Colors.orange,
-              ),
-            ),
             Tab(
               child: Icon(
                 FontAwesomeIcons.arrowsLeftRight,
@@ -473,13 +430,6 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
               return TabBarView(
                 controller: _tabController,
                 children: <Widget>[
-                  SelectionZone(
-                    whitePieces: _whitePieces,
-                    selectedPiece: _selectedPiece,
-                    onSelection: _onSelection,
-                    onTrashSelection: _onTrashSelection,
-                    onColorToggle: _onColorToggle,
-                  ),
                   SingleChildScrollView(
                     child: TurnWidget(
                       labels: widget.labels,
@@ -689,5 +639,48 @@ class _OptionsState extends State<Options> with SingleTickerProviderStateMixin {
     }
 
     editingStore.setFen(parts.join(' '));
+  }
+}
+
+class ChessBoardGroup extends StatelessWidget {
+  final double boardSize;
+  final void Function(String) onReaction;
+  final void Function(int, int) onSquareClicked;
+
+  const ChessBoardGroup({
+    super.key,
+    required this.boardSize,
+    required this.onReaction,
+    required this.onSquareClicked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final editingStore = GetIt.instance.get<EditingStore>();
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        SizedBox(
+          width: boardSize,
+          height: boardSize,
+          child: ReactionBuilder(
+            builder: (context) {
+              return reaction((_) => editingStore.fen, (newFen) {
+                onReaction(newFen);
+              });
+            },
+            child: Observer(builder: (_) {
+              return ChessBoard(
+                fen: editingStore.fen,
+                onSquareClicked: onSquareClicked,
+              );
+            }),
+          ),
+        ),
+        const PieceEditorWidget(),
+      ],
+    );
   }
 }

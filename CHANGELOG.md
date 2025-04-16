@@ -1,3 +1,7 @@
+## 0.5.0
+
+- Pieces selection zone is always visible, and removed selection tab from advanced options.
+
 ## 0.4.0
 
 - Improve the piece selection zone so that it takes less place.
